@@ -12,8 +12,9 @@ export default {
   const upstream = new URL('https://theshrimpblimp.github.io');
   upstream.pathname = '/pigeon-website/' + url.pathname.slice('/pigeon/'.length);
   upstream.search = url.search;
-  const response = await fetch(upstream, {method:request.method, redirect:'manual'});
+  const response = await fetch(upstream, {method:request.method, redirect:'manual', headers:{'Cache-Control':'no-cache'}, cf:{cacheTtl:0, cacheEverything:false}});
   const headers = new Headers(response.headers);
+  headers.set('Cache-Control', 'no-cache');
   const location = headers.get('Location');
   if (location) {
    const next = new URL(location, upstream);
