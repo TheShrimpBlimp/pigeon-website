@@ -700,7 +700,7 @@ editors = createEditors({
 const updatePanel = document.createElement("section");
 updatePanel.className = "kit";
 updatePanel.innerHTML =
-  '<h2>Firmware update</h2><p id="firmware-version">Connect the FM1 to read its firmware version.</p><label>Choose Pigeon firmware<input id="firmware-file" type="file" accept=".fwsc"></label><p id="firmware-package">Choose a local .fwsc package. The GUI does not download firmware.</p><button id="firmware-install" data-device>Back up and install firmware</button><p>Installing reboots the FM1. Keep USB connected throughout. A full recovery session is saved first.</p>';
+  '<h2>Firmware update</h2><p id="firmware-version">Connect the FM1 to read its firmware version.</p><label>Choose Pigeon firmware<input id="firmware-file" type="file" accept=".fwsc"></label><p id="firmware-package">Choose a local .fwsc package. The GUI does not download firmware.</p><button id="firmware-install" data-device>Back up and install firmware</button><p>Installing reboots the FM1. Keep USB connected throughout. A full recovery session is saved first.</p><p>Successful browser installs report an anonymous completion event to the Pigeon counter; no device identity or sample data is sent.</p>';
 document.querySelector(".status-box").before(updatePanel);
 let firmwarePackage = null;
 $("firmware-file").onchange = () =>
