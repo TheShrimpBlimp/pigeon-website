@@ -1,3 +1,5 @@
+import { sha256hex } from '../fm1pkg.js';
+import { recordInstall } from './install-count.js';
 // SPDX-License-Identifier: GPL-3.0-only
 import {
   inspect,
@@ -719,7 +721,7 @@ $("firmware-file").onchange = () =>
       throw Error(
         "Package is not Pigeon firmware with the supported update loader",
       );
-    firmwarePackage = { bytes, product: pkg.product };
+    firmwarePackage = { bytes, product: pkg.product, release: await sha256hex(bytes) };
     $("firmware-package").textContent =
       `${file.name} • ${pkg.product} • ${(bytes.length / 1024).toFixed(1)} KiB`;
     status("Firmware package validated locally");
@@ -744,6 +746,7 @@ $("firmware-install").onclick = () =>
         (stage, value) =>
           status(`Firmware update: ${stage}${value ? " • " + value : ""}`),
       );
+      void recordInstall(firmwarePackage.release,"sample-tool");
       ports();
       attach();
       status(

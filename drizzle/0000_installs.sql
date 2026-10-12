@@ -1,0 +1,6 @@
+CREATE TABLE installs (
+  id TEXT PRIMARY KEY NOT NULL,
+  release TEXT NOT NULL,
+  source TEXT NOT NULL,
+  day TEXT NOT NULL
+);
