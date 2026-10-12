@@ -29,6 +29,22 @@ try{
  await page.goto(origin+'/webapp/installer/');assert.equal(await page.title(),'Pigeon USB installer');await page.locator('#connect:not([disabled])').waitFor();assert(await page.locator('#go').isDisabled());
  await page.evaluate(()=>{navigator.requestMIDIAccess=async()=>({inputs:new Map(),outputs:new Map()});});await page.locator('#connect').click();await page.getByText('FM1 not found. Check the USB cable and close other MIDI apps.',{exact:true}).waitFor();assert(await page.locator('#go').isDisabled());
  await page.route('**/firmware/*.fwsc',route=>route.fulfill({body:Buffer.from('damaged')}));await page.reload();await page.getByText('Firmware verification failed. Installation blocked.',{exact:true}).waitFor();assert(await page.locator('#connect').isDisabled());assert(await page.locator('#go').isDisabled());await page.unroute('**/firmware/*.fwsc');assert.equal(errors.length,0,errors.join('\n')); 
- await page.goto(origin+'/webapp/pigeon/');await page.waitForTimeout(1000);assert.equal(errors.length,0,errors.join('\n'));assert.equal(await page.locator('.home-link').getAttribute('href'),'../../');await page.locator('.home-link').click();assert.equal(new URL(page.url()).pathname,'/');
+ await page.goto(origin+'/webapp/pigeon/');await page.waitForTimeout(1000);assert.equal(errors.length,0,errors.join('\n'));assert.equal(await page.locator('.home-link').getAttribute('href'),'../../');
+ await page.locator('#open').setInputFiles('build/gui-deps/dual-kit.kob');
+ await page.waitForFunction(()=>document.getElementById('used').textContent!=='No bank loaded');
+ await page.evaluate(()=>{
+  window.testMidiCommands=[];
+  const input={id:'test-in',name:'Pigeon FM1',state:'connected',onmidimessage:null};
+  const u21=n=>[n&127,(n>>>7)&127,(n>>>14)&127];
+  const output={id:'test-out',name:'Pigeon FM1',state:'connected',send(bytes){const cmd=bytes[4];window.testMidiCommands.push(cmd);const response=cmd===90?[75,3,...u21(0x67000),...u21(4096),1,3]:cmd===1?[...new TextEncoder().encode('Pigeon'),0]:[0];setTimeout(()=>input.onmidimessage?.({data:Uint8Array.from([240,125,70,76,cmd,...response,247])}),0);}};
+  navigator.requestMIDIAccess=async()=>({inputs:new Map([[input.id,input]]),outputs:new Map([[output.id,output]])});
+ });
+ await page.locator('#connect').click();await page.locator('#upload:not([disabled])').waitFor();
+ await page.locator('#upload').click();assert(await page.locator('#send-review').isVisible());
+ await page.locator('#send-cancel').click();assert(await page.locator('#send-review').isHidden());assert(!(await page.evaluate(()=>window.testMidiCommands)).includes(91));
+ await page.locator('#upload').click();await page.locator('#send-confirm').click();
+ await page.waitForFunction(()=>document.getElementById('transfer-status').textContent.startsWith('Saving recovery backup:'));
+ assert(!(await page.evaluate(()=>window.testMidiCommands)).includes(91));
+await page.locator('.home-link').click();assert.equal(new URL(page.url()).pathname,'/');
  console.log('Pigeon site: links, downloads, firmware installer, sample tool, desktop/mobile layout passed.');
 }finally{await browser.close();await new Promise(r=>server.close(r));}

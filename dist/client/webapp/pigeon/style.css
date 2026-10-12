@@ -354,3 +354,8 @@ footer span {
 .home-link:hover { text-decoration: underline; }
 
 body, body *, button, input, select, textarea { font-family: "Little Character", monospace; font-synthesis: none; }
+
+.transfer-panel { border: 1px solid var(--line); padding: 16px; margin: 12px 0; }
+.transfer-panel progress { width: 100%; }
+#transfer-status.error { color: #ffb39b; }
+#send-review[hidden] { display: none; }

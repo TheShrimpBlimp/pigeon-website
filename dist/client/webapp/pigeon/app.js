@@ -62,11 +62,14 @@ async function load(key) {
 }
 function status(text, error = false) {
   $("status").textContent = text;
+  $("transfer-status").textContent = text;
+  $("transfer-status").classList.toggle("error",error);
   $("status").parentElement.classList.toggle("error", error);
 }
 function progress(label, done, total) {
   status(`${label} • ${Math.round((done / total) * 100)}%`);
   $("job").value = done / total;
+  $("transfer-progress").value = done / total;
 }
 function controls() {
   document.querySelectorAll("button,input,select").forEach((e) => {
@@ -76,6 +79,7 @@ function controls() {
       (e.hasAttribute("data-bank") && !image) ||
       (e.hasAttribute("data-device") && !device);
   });
+  $("send-help").textContent=initializing?"Preparing the tool…":busy?"Operation in progress — keep USB connected.":!image?"Open a .kob bank or import Song 1 before sending.":!device?"Bank ready. Connect the FM1 and select matching MIDI ports before sending.":"Bank and FM1 ready. Press Send bank to review the transfer.";
   $("restore").disabled = initializing || busy || !device || !archive;
   $("recovery").disabled = initializing || busy || !recovery;
 }
@@ -591,22 +595,28 @@ async function protect() {
   saveArchive(`pigeon-recovery-${date()}.pigeon`, a);
   return a;
 }
-$("upload").onclick = () =>
-  run(async () => {
-    const info = inspect(image);
-    if (
-      !confirm(
-        `Replace the FM1 sample bank with ${info.songs.map((s) => s.name).join(" + ")} and ${info.pads} drum pads (${(info.payloadUsed / 1024).toFixed(1)} KiB)? Stop playback and release all keys. A recovery session will be saved first.`,
-      )
-    )
-      return;
+$("upload").onclick = () => {
+  if(busy || initializing || !image || !device){controls();return;}
+  const info=inspect(image);
+  $("send-summary").textContent=`Replace both FM1 songs and the kit with ${info.songs.map(s=>s.name).join(" + ")} and ${info.pads} drum pads (${(info.payloadUsed/1024).toFixed(1)} KiB)?`;
+  $("send-review").hidden=false;
+  $("send-review").scrollIntoView({block:"nearest"});
+  $("send-confirm").focus();
+};
+$("send-cancel").onclick=()=>{$("send-review").hidden=true;status("Bank transfer cancelled. Nothing was written.");};
+$("send-confirm").onclick=()=>run(async()=>{
+  if(!image || !device)throw Error("Reconnect the FM1 and select a bank before sending.");
+  $("send-review").hidden=true;
+  let stage="Saving recovery backup";
+  try{
     await protect();
-    const actual = await device.writeBank(image);
+    stage="Writing and verifying the bank";
+    status("Recovery saved. Starting sample-bank transfer…");
+    const actual=await device.writeBank(image);
     await updateBank(actual);
-    status(
-      "Bank sent and verified by reading it back. Recovery backup retained.",
-    );
-  });
+    status("Bank sent and verified by reading it back. Recovery backup retained.");
+  }catch(e){throw Error(`${stage}: ${e.message||String(e)}`);}
+});
 $("backup").onclick = () =>
   run(async () => {
     const a = await device.capture();
