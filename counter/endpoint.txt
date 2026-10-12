@@ -1,0 +1,1 @@
+https://pigeon-counter.theshrimpblimp.workers.dev/api/installs
