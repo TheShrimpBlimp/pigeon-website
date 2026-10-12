@@ -15,7 +15,10 @@ try{
  assert.equal(await page.title(),'Pigeon — Sampler firmware for the FM1');
  assert.equal(await page.locator('h1').textContent(),'Your FM1.A sampler.');
  const installer=page.frameLocator('iframe[title="Pigeon USB MIDI firmware installer"]');
- await installer.locator('#go:not([disabled])').waitFor();
+ await installer.locator('#connect:not([disabled])').waitFor();
+ assert(await installer.locator('#go').isDisabled());
+ assert((await installer.locator('#package-status').textContent()).includes('checksum verified'));
+ await installer.locator('#backup').check();assert(await installer.locator('#go').isDisabled());
  assert.equal(await installer.locator('h1').textContent(),'Pigeon');
  assert.equal(await page.locator('.ui-gallery img').count(),3);
  for(const image of await page.locator('main img').all())assert(await image.evaluate(i=>i.complete && i.naturalWidth===960));
@@ -23,7 +26,9 @@ try{
  const links=await page.locator('a').evaluateAll(a=>a.map(x=>x.getAttribute('href')).filter(h=>h&&!h.startsWith('http')&&!h.startsWith('#')));
  for(const link of new Set(links)){const response=await page.request.get(origin+'/'+link);assert.equal(response.status(),200,link);}
  for(const width of [1280,390]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`build/pigeon-site-${width}.png`,fullPage:true});}
- await page.goto(origin+'/webapp/installer/');assert.equal(await page.title(),'Pigeon USB installer');await page.waitForTimeout(500);assert.equal(errors.length,0,errors.join('\n'));
+ await page.goto(origin+'/webapp/installer/');assert.equal(await page.title(),'Pigeon USB installer');await page.locator('#connect:not([disabled])').waitFor();assert(await page.locator('#go').isDisabled());
+ await page.evaluate(()=>{navigator.requestMIDIAccess=async()=>({inputs:new Map(),outputs:new Map()});});await page.locator('#connect').click();await page.getByText('FM1 not found. Check the USB cable and close other MIDI apps.',{exact:true}).waitFor();assert(await page.locator('#go').isDisabled());
+ await page.route('**/firmware/*.fwsc',route=>route.fulfill({body:Buffer.from('damaged')}));await page.reload();await page.getByText('Firmware verification failed. Installation blocked.',{exact:true}).waitFor();assert(await page.locator('#connect').isDisabled());assert(await page.locator('#go').isDisabled());await page.unroute('**/firmware/*.fwsc');assert.equal(errors.length,0,errors.join('\n')); 
  await page.goto(origin+'/webapp/pigeon/');await page.waitForTimeout(1000);assert.equal(errors.length,0,errors.join('\n'));assert.equal(await page.locator('.home-link').getAttribute('href'),'../../');await page.locator('.home-link').click();assert.equal(new URL(page.url()).pathname,'/');
  console.log('Pigeon site: links, downloads, firmware installer, sample tool, desktop/mobile layout passed.');
 }finally{await browser.close();await new Promise(r=>server.close(r));}
