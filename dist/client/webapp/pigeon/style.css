@@ -352,3 +352,5 @@ footer span {
 
 .home-link { color: var(--green, #b9ef77); font-size: 14px; text-decoration: none; border: 1px solid #35412e; padding: 9px 13px; white-space: nowrap; }
 .home-link:hover { text-decoration: underline; }
+
+body, body *, button, input, select, textarea { font-family: "Little Character", monospace; font-synthesis: none; }
