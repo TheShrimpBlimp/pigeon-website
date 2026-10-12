@@ -17,7 +17,7 @@ if endpoint:
     module = target / "webapp/pigeon/install-count.js"
     module.write_text(module.read_text().replace("new URL('../../api/installs',import.meta.url)", repr(endpoint)))
 else:
-    html = html.replace("Install statistics load when online.", "Install counting is not enabled on this host.")
+    html = html.replace("Loading shared count · includes reinstalls", "Install counting is not enabled on this host.")
     html = re.sub(r'<script type="module">try \{const r=await fetch\("api/installs".*?</script>', '', html, flags=re.S)
     (target / "webapp/pigeon/install-count.js").write_text(
         "export async function recordInstall() {}\nexport async function flushInstallCounts() {}\n")
