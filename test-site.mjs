@@ -18,12 +18,12 @@ try{
  await installer.locator('#go:not([disabled])').waitFor();
  assert.equal(await installer.locator('h1').textContent(),'Pigeon');
  assert.equal(await page.locator('.ui-gallery img').count(),3);
- for(const image of await page.locator('main img').all())assert(await image.evaluate(i=>i.complete && i.naturalWidth===240));
+ for(const image of await page.locator('main img').all())assert(await image.evaluate(i=>i.complete && i.naturalWidth===960));
  assert(!await page.locator('body').textContent().then(t=>t.includes('{{')));
  const links=await page.locator('a').evaluateAll(a=>a.map(x=>x.getAttribute('href')).filter(h=>h&&!h.startsWith('http')&&!h.startsWith('#')));
  for(const link of new Set(links)){const response=await page.request.get(origin+'/'+link);assert.equal(response.status(),200,link);}
  for(const width of [1280,390]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`build/pigeon-site-${width}.png`,fullPage:true});}
  await page.goto(origin+'/webapp/installer/');assert.equal(await page.title(),'Pigeon USB installer');await page.waitForTimeout(500);assert.equal(errors.length,0,errors.join('\n'));
- await page.goto(origin+'/webapp/pigeon/');await page.waitForTimeout(1000);assert.equal(errors.length,0,errors.join('\n'));
+ await page.goto(origin+'/webapp/pigeon/');await page.waitForTimeout(1000);assert.equal(errors.length,0,errors.join('\n'));assert.equal(await page.locator('.home-link').getAttribute('href'),'../../');await page.locator('.home-link').click();assert.equal(new URL(page.url()).pathname,'/');
  console.log('Pigeon site: links, downloads, firmware installer, sample tool, desktop/mobile layout passed.');
 }finally{await browser.close();await new Promise(r=>server.close(r));}
