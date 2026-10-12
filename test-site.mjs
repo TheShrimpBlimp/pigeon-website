@@ -17,7 +17,11 @@ try{
  const installer=page.frameLocator('iframe[title="Pigeon USB MIDI firmware installer"]');
  await installer.locator('#connect:not([disabled])').waitFor();
  assert(await installer.locator('#go').isDisabled());
+ assert((await installer.locator('#package-status').textContent()).includes('0.1-beta-candidate'));
  assert((await installer.locator('#package-status').textContent()).includes('checksum verified'));
+ assert.equal(await installer.locator('#release-status').textContent(),'Beta candidate: hardware verification pending.');
+ assert.equal(await installer.locator('#firmware-download').getAttribute('href'),'../../firmware/pigeon-0.1-beta-candidate.fwsc');
+ assert(!await page.locator('#faq').textContent().then(t=>t.includes('It has been installed on an FM1')));
  await installer.locator('#backup').check();assert(await installer.locator('#go').isDisabled());
  assert.equal(await installer.locator('h1').textContent(),'Pigeon');
  assert.equal(await page.locator('.ui-gallery img').count(),3);

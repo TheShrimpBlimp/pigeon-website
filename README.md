@@ -6,7 +6,7 @@ Edit `index.html` and `site.css` here. The current offline sample tool stays in
 From the project root, build with:
 
 ```sh
-.venv/bin/python web/make_site.py build/pigeon.fwsc 0.1-dev web/site/dist
+.venv/bin/python web/make_site.py build/pigeon.fwsc 0.1-beta-candidate web/site/dist
 ```
 
 `dist/` contains the complete static site, current firmware, matching source,
