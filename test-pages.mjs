@@ -44,11 +44,15 @@ try{
   navigator.requestMIDIAccess=async()=>({inputs:new Map([[input.id,input]]),outputs:new Map([[output.id,output]])});
  });
  await page.locator('#connect').click();await page.locator('#upload:not([disabled])').waitFor();
+ await page.locator('#backup').click();await page.getByText('Unsupported archive protocol',{exact:true}).first().waitFor();
+ await page.locator('#upload:not([disabled])').waitFor();
+ assert((await page.evaluate(()=>window.testMidiCommands)).includes(65));
+ await page.evaluate(()=>window.testMidiCommands=[]);
  await page.locator('#upload').click();assert(await page.locator('#send-review').isVisible());
  await page.locator('#send-cancel').click();assert(await page.locator('#send-review').isHidden());assert(!(await page.evaluate(()=>window.testMidiCommands)).includes(91));
  await page.locator('#upload').click();await page.locator('#send-confirm').click();
- await page.waitForFunction(()=>document.getElementById('transfer-status').textContent.startsWith('Saving recovery backup:'));
- assert(!(await page.evaluate(()=>window.testMidiCommands)).includes(91));
+ await page.waitForFunction(()=>window.testMidiCommands.includes(91));
+ assert(!(await page.evaluate(()=>window.testMidiCommands)).includes(65));
 await page.locator('.home-link').click();assert.equal(new URL(page.url()).pathname,'/pigeon-website/');
  console.log('Pigeon site: links, downloads, firmware installer, sample tool, desktop/mobile layout passed.');
 }finally{await browser.close();await new Promise(r=>server.close(r));}
