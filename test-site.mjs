@@ -14,6 +14,11 @@ try{
  await page.goto(origin);await page.evaluate(()=>document.fonts.ready);
  assert.equal(await page.title(),'Pigeon — Sampler firmware for the FM1');
  assert.equal(await page.locator('h1').textContent(),'Your FM1.A sampler.');
+ const installer=page.frameLocator('iframe[title="Pigeon USB MIDI firmware installer"]');
+ await installer.locator('#go:not([disabled])').waitFor();
+ assert.equal(await installer.locator('h1').textContent(),'Pigeon');
+ assert.equal(await page.locator('.ui-gallery img').count(),3);
+ for(const image of await page.locator('main img').all())assert(await image.evaluate(i=>i.complete && i.naturalWidth===240));
  assert(!await page.locator('body').textContent().then(t=>t.includes('{{')));
  const links=await page.locator('a').evaluateAll(a=>a.map(x=>x.getAttribute('href')).filter(h=>h&&!h.startsWith('http')&&!h.startsWith('#')));
  for(const link of new Set(links)){const response=await page.request.get(origin+'/'+link);assert.equal(response.status(),200,link);}
