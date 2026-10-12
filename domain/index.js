@@ -12,6 +12,8 @@ export default {
   const upstream = new URL('https://theshrimpblimp.github.io');
   upstream.pathname = '/pigeon-website/' + url.pathname.slice('/pigeon/'.length);
   upstream.search = url.search;
+  // GitHub's CDN can retain old assets even after a Pages deployment.
+  upstream.searchParams.set('_pigeon_refresh', String(Math.floor(Date.now() / 60000)));
   const response = await fetch(upstream, {method:request.method, redirect:'manual', headers:{'Cache-Control':'no-cache'}, cf:{cacheTtl:0, cacheEverything:false}});
   const headers = new Headers(response.headers);
   headers.set('Cache-Control', 'no-cache');
