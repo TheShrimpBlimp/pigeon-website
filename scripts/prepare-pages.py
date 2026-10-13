@@ -27,5 +27,5 @@ else:
         "Install counting is not enabled on this host. Samples stay on your computer."))
 index.write_text(html)
 sw = target / "webapp/pigeon/sw.js"
-sw.write_text(sw.read_text().replace('pigeon-library-v15', 'pigeon-library-pages-v17'))
+sw.write_text(sw.read_text().replace('pigeon-library-v16', 'pigeon-library-pages-v18'))
 print(target)
