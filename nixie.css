@@ -1,0 +1,14 @@
+/* CSS glass tubes and warm cathode glow; digits retain Little Character. */
+.install-counter{display:flex;align-items:center;justify-content:center;gap:28px;padding:28px 0 8px;flex-wrap:wrap}
+.nixie-digits{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.nixie-tube{position:relative;display:grid;place-items:center;width:58px;height:92px;border:1px solid #805137;border-radius:25px 25px 12px 12px;background:repeating-linear-gradient(0deg,transparent 0 5px,#ffa2560a 5px 6px),linear-gradient(100deg,#fff1 0%,#fff0 30%,#170f0a 75%,#fff1);box-shadow:inset 0 0 18px #ff7a181c,0 5px 0 #34271e,0 9px 0 #080b06;color:#ff9a49;font-size:62px;line-height:1;text-shadow:0 0 3px #ffb36d,0 0 12px #ff6a20,0 0 24px #ff480080;letter-spacing:0;padding-top:6px}
+.nixie-tube:before{content:"";position:absolute;inset:7px auto 18px 7px;width:5px;border-radius:12px;background:linear-gradient(#fff3,#fff0)}
+.counter-caption{font-size:17px;letter-spacing:.08em}.counter-caption p{font-size:12px;letter-spacing:.025em;color:var(--muted);margin:5px 0 0}
+@media(max-width:600px){.install-counter{gap:20px;text-align:center}.nixie-digits{gap:5px}.nixie-tube{width:42px;height:72px;font-size:46px;border-radius:20px 20px 9px 9px}.counter-caption{font-size:15px}}
+
+
+/* The ten unlit cathodes remain visible through the glass behind the lit digit. */
+.nixie-unlit,.nixie-active{position:absolute;inset:0;display:grid;place-items:center;padding-top:6px}
+.nixie-unlit{z-index:0;pointer-events:none;text-shadow:none}
+.nixie-unlit b{position:absolute;inset:0;display:grid;place-items:center;padding-top:6px;font-weight:400;color:#855334;opacity:.24;text-shadow:none;transform:translateX(calc((var(--depth) - 4.5)*.16px))}
+.nixie-active{z-index:1}.nixie-tube:before{z-index:2;pointer-events:none}

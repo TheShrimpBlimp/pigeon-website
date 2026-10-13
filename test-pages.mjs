@@ -12,7 +12,7 @@ const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin+'/');await page.evaluate(()=>document.fonts.ready);assert(await page.evaluate(()=>document.fonts.check('16px Little') && [...document.fonts].some(f=>f.family==='Little' && f.status==='loaded')));
- assert.equal(await page.title(),'Pigeon — Sampler firmware for the FM1');
+ assert.equal(await page.title(),'PIGEON — Sampler firmware for the FM1');
  const wrongFonts=await page.locator('body *').evaluateAll(elements=>elements.filter(e=>e.getClientRects().length && !['SCRIPT','STYLE'].includes(e.tagName) && getComputedStyle(e).fontFamily.split(',')[0].trim()!=='Little').map(e=>({tag:e.tagName,class:e.className,font:getComputedStyle(e).fontFamily})));
  assert.deepEqual(wrongFonts,[], 'All visible landing-page text must use Little Character');
  assert.equal(await page.locator('.steps li').first().evaluate(e=>getComputedStyle(e,'::before').fontFamily.split(',')[0].trim()),'Little');
@@ -20,7 +20,7 @@ try{
  assert.equal(await page.locator('h1').textContent(),'Your FM1.A sampler.');
  assert(await page.locator('footer a[href="https://github.com/Quixotic7/ChoralRootFM1"]').first().isVisible());
  await page.locator('footer .project-credits summary').click();
- const installer=page.frameLocator('iframe[title="Pigeon USB MIDI firmware installer"]');
+ const installer=page.frameLocator('iframe[title="PIGEON USB MIDI firmware installer"]');
  await installer.locator('#connect:not([disabled])').waitFor();
  assert(await installer.locator('#go').isDisabled());
  assert((await installer.locator('#package-status').textContent()).includes('0.1-beta-candidate'));
@@ -29,14 +29,14 @@ try{
  assert.equal(await installer.locator('#firmware-download').getAttribute('href'),'../../firmware/pigeon-0.1-beta-candidate.fwsc');
  assert(!await page.locator('#faq').textContent().then(t=>t.includes('It has been installed on an FM1')));
  await installer.locator('#backup').check();assert(await installer.locator('#go').isDisabled());
- assert.equal(await installer.locator('h1').textContent(),'Pigeon');
+ assert.equal(await installer.locator('h1').textContent(),'PIGEON');
  assert.equal(await page.locator('.ui-gallery img').count(),3);
  for(const image of await page.locator('main img').all())assert(await image.evaluate(i=>i.complete && i.naturalWidth===960));
  assert(!await page.locator('body').textContent().then(t=>t.includes('{{')));
  const links=await page.locator('a').evaluateAll(a=>a.map(x=>x.getAttribute('href')).filter(h=>h&&!h.startsWith('http')&&!h.startsWith('#')));
  for(const link of new Set(links)){const response=await page.request.get(origin+'/'+link);assert.equal(response.status(),200,link);}
  for(const width of [1280,390]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`build/pigeon-site-${width}.png`,fullPage:true});}
- await page.goto(origin+'/webapp/installer/');assert.equal(await page.title(),'Pigeon USB installer');await page.locator('#connect:not([disabled])').waitFor();assert(await page.locator('#go').isDisabled());
+ await page.goto(origin+'/webapp/installer/');assert.equal(await page.title(),'PIGEON USB installer');await page.locator('#connect:not([disabled])').waitFor();assert(await page.locator('#go').isDisabled());
 
  await page.evaluate(()=>{
   window.updateCommands=[];
@@ -56,9 +56,9 @@ try{
  await page.waitForFunction(()=>document.getElementById('used').textContent!=='No bank loaded');
  await page.evaluate(()=>{
   window.testMidiCommands=[];
-  const input={id:'test-in',name:'Pigeon FM1',state:'connected',onmidimessage:null};
+  const input={id:'test-in',name:'PIGEON FM1',state:'connected',onmidimessage:null};
   const u21=n=>[n&127,(n>>>7)&127,(n>>>14)&127];
-  const output={id:'test-out',name:'Pigeon FM1',state:'connected',send(bytes){const cmd=bytes[4];window.testMidiCommands.push(cmd);const response=cmd===90?[75,3,...u21(0x67000),...u21(4096),1,3]:cmd===1?[...new TextEncoder().encode('Pigeon'),0]:[0];setTimeout(()=>input.onmidimessage?.({data:Uint8Array.from([240,125,70,76,cmd,...response,247])}),0);}};
+  const output={id:'test-out',name:'PIGEON FM1',state:'connected',send(bytes){const cmd=bytes[4];window.testMidiCommands.push(cmd);const response=cmd===90?[75,3,...u21(0x67000),...u21(4096),1,3]:cmd===1?[...new TextEncoder().encode('PIGEON'),0]:[0];setTimeout(()=>input.onmidimessage?.({data:Uint8Array.from([240,125,70,76,cmd,...response,247])}),0);}};
   navigator.requestMIDIAccess=async()=>({inputs:new Map([[input.id,input]]),outputs:new Map([[output.id,output]])});
  });
  await page.locator('#connect').click();await page.locator('#upload:not([disabled])').waitFor();
@@ -72,5 +72,5 @@ try{
  await page.waitForFunction(()=>window.testMidiCommands.includes(91));
  assert(!(await page.evaluate(()=>window.testMidiCommands)).includes(65));
 await page.locator('.home-link').click();assert.equal(new URL(page.url()).pathname,'/pigeon-website/');
- console.log('Pigeon site: links, downloads, firmware installer, sample tool, desktop/mobile layout passed.');
+ console.log('PIGEON site: links, downloads, firmware installer, sample tool, desktop/mobile layout passed.');
 }finally{await browser.close();await new Promise(r=>server.close(r));}
