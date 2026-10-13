@@ -13,6 +13,10 @@ try{
  const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin+'/');await page.evaluate(()=>document.fonts.ready);assert(await page.evaluate(()=>document.fonts.check('16px Little') && [...document.fonts].some(f=>f.family==='Little' && f.status==='loaded')));
  assert.equal(await page.title(),'Pigeon — Sampler firmware for the FM1');
+ const wrongFonts=await page.locator('body *').evaluateAll(elements=>elements.filter(e=>e.getClientRects().length && !['SCRIPT','STYLE'].includes(e.tagName) && getComputedStyle(e).fontFamily.split(',')[0].trim()!=='Little').map(e=>({tag:e.tagName,class:e.className,font:getComputedStyle(e).fontFamily})));
+ assert.deepEqual(wrongFonts,[], 'All visible landing-page text must use Little Character');
+ assert.equal(await page.locator('.steps li').first().evaluate(e=>getComputedStyle(e,'::before').fontFamily.split(',')[0].trim()),'Little');
+
  assert.equal(await page.locator('h1').textContent(),'Your FM1.A sampler.');
  const installer=page.frameLocator('iframe[title="Pigeon USB MIDI firmware installer"]');
  await installer.locator('#connect:not([disabled])').waitFor();
