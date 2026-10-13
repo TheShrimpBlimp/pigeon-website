@@ -42,7 +42,9 @@ The homepage links `webapp/emu/`, a WebAssembly build of PIGEON running against
 an FM1 HAL. Build from the firmware checkout with `sh web/emu/build.sh`
 (Emscripten required) before `web/make_site.py`. It starts empty. Users load their
 own songs and up to 16 drum samples; imports are normalized, downmixed and
-resampled locally to 22.05 kHz IMA ADPCM. FM1 storage mode enforces the real
+resampled locally to 22.05 kHz. FM1 mode offers per-song MP3 compression at
+24, 32, 40, 48, 56 or 64 kbps (64 by default), using the sample tool’s bundled
+encoder. Drum pads use IMA ADPCM. Unlimited mode uses IMA ADPCM for songs. FM1 storage mode enforces the real
 408 KiB shared payload pool, including waveform/alignment overhead. Unlimited
 mode uses a browser-only expanded bank and is bounded by browser memory, rather
 than FM1 flash. Samples persist in IndexedDB, virtual settings/projects in
