@@ -1,4 +1,4 @@
-# Pigeon download and setup site
+# PIGEON download and setup site
 
 Edit `index.html` and `site.css` here. The current offline sample tool stays in
 `../pigeon/`; firmware packaging lives in `../make_site.py`.
@@ -38,10 +38,28 @@ Build output now uses `dist/client/` assets and `dist/server/` Worker code.
 
 ## Browser trial
 
-The homepage links `webapp/emu/`, a WebAssembly build of Pigeon running against
-an FM1 HAL. Build it from the firmware checkout with `sh web/emu/build.sh`
-(Emscripten required) before `web/make_site.py`. It includes CC0 factory demo
-samples and keeps virtual flash separately from the sample tool. Connect FM1
-uses explicit Web MIDI SysEx permission. Existing firmware supplies MIDI notes;
-controller-enabled Pigeon adds a temporary, RAM-only lease for keys, knobs,
-buttons and MASTER. Real hardware verification is pending.
+The homepage links `webapp/emu/`, a WebAssembly build of PIGEON running against
+an FM1 HAL. Build from the firmware checkout with `sh web/emu/build.sh`
+(Emscripten required) before `web/make_site.py`. It starts empty. Users load their
+own songs and up to 16 drum samples; imports are normalized, downmixed and
+resampled locally to 22.05 kHz IMA ADPCM. FM1 storage mode enforces the real
+408 KiB shared payload pool, including waveform/alignment overhead. Unlimited
+mode uses a browser-only expanded bank and is bounded by browser memory, rather
+than FM1 flash. Samples persist in IndexedDB, virtual settings/projects in
+separate browser-local flash. No samples are uploaded or included in releases.
+
+Connect a MIDI controller (including the FM1) requests ordinary Web MIDI input
+only, without SysEx permission, output messages or firmware changes. Controller
+keys play the selected browser track. Editing uses the on-screen panel.
+The page uses lit.chr and the main site palette. Its credits link directly to
+Charles Vestal's FM1 X0X emulator wrapper, AudioWorklet and interactive panel,
+and credit the Felucca adaptation by Leo Kuroshita and Hügelton Instruments.
+
+## Anonymous trial counter
+
+The emulator's shared nixie counter records a successful browser start once per
+random browser ID in local storage. Reopening/retrying uses the same ID. Clearing
+site data or using another browser creates another trial; this does not measure
+unique people. Only the random ID and day are stored; no audio, device identity,
+account or IP is written to the database. GET/POST `/api/trials` is shared by the
+hosted Worker and public counter. Apply `drizzle/0001_trials.sql` before deploying.

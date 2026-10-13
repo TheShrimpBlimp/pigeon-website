@@ -1,4 +1,4 @@
-# Pigeon install counter
+# PIGEON install counter
 
 Cloudflare Worker + D1, used by the GitHub Pages site. `endpoint.txt` connects
 both the homepage and completed-install reports during `scripts/prepare-pages.py`.
@@ -17,3 +17,7 @@ wrangler deploy --config counter/wrangler.json
 
 The schema is safe to reapply and preserves the current total. Credentials stay
 in Wrangler's local authentication storage and must never be committed.
+
+The emulator also uses `/api/trials`: one successful start per random ID stored
+in the visitor's browser, with the ID and day in D1. This counts browser trials,
+not unique people. Apply `../drizzle/0001_trials.sql` before deploying the Worker.

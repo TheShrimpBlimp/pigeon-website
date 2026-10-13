@@ -13,19 +13,22 @@ endpoint = endpoint_file.read_text().strip() if endpoint_file.exists() else ""
 index = target / "index.html"
 html = index.read_text()
 if endpoint:
+    trial = target / "webapp/emu/trial-count.js"
+    trial.write_text(trial.read_text().replace("new URL('../../api/trials',import.meta.url)", repr(endpoint.replace('/api/installs','/api/trials'))))
     html = html.replace('fetch("api/installs",', f'fetch("{endpoint}",')
     module = target / "webapp/pigeon/install-count.js"
     module.write_text(module.read_text().replace("new URL('../../api/installs',import.meta.url)", repr(endpoint)))
 else:
+    (target / 'webapp/emu/trial-count.js').write_text("export async function trialTotal(){throw Error('Counter unavailable')}\nexport async function recordTrial(){throw Error('Counter unavailable')}\n")
     html = html.replace("Loading shared count · includes reinstalls", "Install counting is not enabled on this host.")
-    html = re.sub(r'<script type="module">try \{const r=await fetch\("api/installs".*?</script>', '', html, flags=re.S)
+    html = re.sub(r'<script type="module">.*?try \{const r=await fetch\("api/installs".*?</script>', '', html, flags=re.S)
     (target / "webapp/pigeon/install-count.js").write_text(
         "export async function recordInstall() {}\nexport async function flushInstallCounts() {}\n")
     installer = target / "webapp/installer/index.html"
     installer.write_text(installer.read_text().replace(
-        "Successful installs send an anonymous completion event to Pigeon’s counter. No sample data or device identity is sent. Offline reports wait until you reconnect.",
+        "Successful installs send an anonymous completion event to PIGEON’s counter. No sample data or device identity is sent. Offline reports wait until you reconnect.",
         "Install counting is not enabled on this host. Samples stay on your computer."))
 index.write_text(html)
 sw = target / "webapp/pigeon/sw.js"
-sw.write_text(sw.read_text().replace('pigeon-library-v16', 'pigeon-library-pages-v18'))
+sw.write_text(sw.read_text().replace('pigeon-library-v17', 'pigeon-library-pages-v19'))
 print(target)
