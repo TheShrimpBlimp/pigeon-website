@@ -18,7 +18,7 @@ try{
  assert.equal(await page.locator('.steps li').first().evaluate(e=>getComputedStyle(e,'::before').fontFamily.split(',')[0].trim()),'Little');
 
  assert.equal(await page.locator('h1').textContent(),'Your FM1.A sampler.');
- assert.equal(await page.locator('footer a[href="https://github.com/Quixotic7/ChoralRootFM1"]').count(),1);
+ assert(await page.locator('footer a[href="https://github.com/Quixotic7/ChoralRootFM1"]').first().isVisible());
  await page.locator('footer .project-credits summary').click();
  const installer=page.frameLocator('iframe[title="Pigeon USB MIDI firmware installer"]');
  await installer.locator('#connect:not([disabled])').waitFor();
