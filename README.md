@@ -41,7 +41,9 @@ Build output now uses `dist/client/` assets and `dist/server/` Worker code.
 The homepage links `webapp/emu/`, a WebAssembly build of PIGEON running against
 an FM1 HAL. Build from the firmware checkout with `sh web/emu/build.sh`
 (Emscripten required) before `web/make_site.py`. It starts empty. Users load their
-own songs and up to 16 drum samples; imports are normalized, downmixed and
+own songs and up to 16 drum samples. Each file has waveform selection, start/end
+trim fields, zoom, scroll, loop preview and explicit Apply controls. Full sources
+and applied trim ranges persist for editing again after reload. Imports are normalized, downmixed and
 resampled locally to 22.05 kHz. FM1 mode offers per-song MP3 compression at
 24, 32, 40, 48, 56 or 64 kbps (64 by default), using the sample tool’s bundled
 encoder. Drum pads use IMA ADPCM. Unlimited mode uses IMA ADPCM for songs. FM1 storage mode enforces the real
