@@ -18,6 +18,8 @@ try{
  assert.equal(await page.locator('.steps li').first().evaluate(e=>getComputedStyle(e,'::before').fontFamily.split(',')[0].trim()),'Little');
 
  assert.equal(await page.locator('h1').textContent(),'Your FM1.A sampler.');
+ assert.equal(await page.locator('footer a[href="https://github.com/Quixotic7/ChoralRootFM1"]').count(),1);
+ await page.locator('footer .project-credits summary').click();
  const installer=page.frameLocator('iframe[title="Pigeon USB MIDI firmware installer"]');
  await installer.locator('#connect:not([disabled])').waitFor();
  assert(await installer.locator('#go').isDisabled());
@@ -35,6 +37,18 @@ try{
  for(const link of new Set(links)){const response=await page.request.get(origin+'/'+link);assert.equal(response.status(),200,link);}
  for(const width of [1280,390]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`build/pigeon-site-${width}.png`,fullPage:true});}
  await page.goto(origin+'/webapp/installer/');assert.equal(await page.title(),'Pigeon USB installer');await page.locator('#connect:not([disabled])').waitFor();assert(await page.locator('#go').isDisabled());
+
+ await page.evaluate(()=>{
+  window.updateCommands=[];
+  const input={id:'unsafe-in',name:'FM-1',state:'connected',onmidimessage:null,open:async()=>{}};
+  const pack=data=>{const out=[];let acc=0,n=0;for(const b of data){acc|=b<<n;n+=8;while(n>=7){out.push(acc&127);acc>>>=7;n-=7;}}if(n)out.push(acc&127);return out;};
+  const output={id:'unsafe-out',name:'FM-1',state:'connected',open:async()=>{},send(d){window.updateCommands.push(Array.from(d));let reply;if(d[1]===0){const text=Array.from(new TextEncoder().encode('FM-1_920'));reply=[240,...pack([0,89,17,0,0,0,...text,...Array(28-text.length).fill(0)]),247];}else if(d[1]===125){reply=[240,125,70,76,1,...Array.from('FELUCCA SLOOP 2.2'.padEnd(24,'\0'),c=>c.charCodeAt(0)),247];}if(reply)setTimeout(()=>input.onmidimessage?.({data:Uint8Array.from(reply)}),0);}};
+  navigator.requestMIDIAccess=async()=>({inputs:new Map([[input.id,input]]),outputs:new Map([[output.id,output]])});
+ });
+ await page.locator('#backup').check();await page.locator('#connect').click();
+ await page.getByText(/Installing over Sloop is not supported/).first().waitFor();
+ assert(await page.locator('#go').isDisabled());
+ assert(!(await page.evaluate(()=>window.updateCommands)).some(p=>p[1]===34));
  await page.evaluate(()=>{navigator.requestMIDIAccess=async()=>({inputs:new Map(),outputs:new Map()});});await page.locator('#connect').click();await page.getByText('FM1 not found. Check the USB cable and close other MIDI apps.',{exact:true}).waitFor();assert(await page.locator('#go').isDisabled());
  await page.route('**/firmware/*.fwsc',route=>route.fulfill({body:Buffer.from('damaged')}));await page.reload();await page.getByText('Firmware verification failed. Installation blocked.',{exact:true}).waitFor();assert(await page.locator('#connect').isDisabled());assert(await page.locator('#go').isDisabled());await page.unroute('**/firmware/*.fwsc');assert.equal(errors.length,0,errors.join('\n')); 
  await page.goto(origin+'/webapp/pigeon/');await page.waitForTimeout(1000);assert.equal(errors.length,0,errors.join('\n'));assert.equal(await page.locator('.home-link').getAttribute('href'),'../../');

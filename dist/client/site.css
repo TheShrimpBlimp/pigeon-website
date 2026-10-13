@@ -20,3 +20,5 @@ body,body *{font-family:Little,monospace;font-synthesis:none}body{letter-spacing
 .nixie-tube:before{content:"";position:absolute;inset:7px auto 18px 7px;width:5px;border-radius:12px;background:linear-gradient(#fff3,#fff0)}
 .counter-caption{font-size:17px;letter-spacing:.08em}.counter-caption p{font-size:12px;letter-spacing:.025em;color:var(--muted);margin:5px 0 0}
 @media(max-width:600px){.install-counter{gap:20px;text-align:center}.nixie-digits{gap:5px}.nixie-tube{width:42px;height:72px;font-size:46px;border-radius:20px 20px 9px 9px}.counter-caption{font-size:15px}}
+
+.project-credits{grid-column:1/-1;width:100%;text-align:left}.project-credits p{max-width:900px}
