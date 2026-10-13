@@ -1,0 +1,16 @@
+name: Website checks
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  site-validation:
+    name: Validate website release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check published release
+        run: python3 scripts/check-release.py
