@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Anonymous, client-reported completed installs. No device/user identity stored.
+import {trialApi} from '../trial-api.js';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 export default {
  async fetch(request,env){
   const url=new URL(request.url);
+  if(url.pathname==='/api/trials')return trialApi(request,env,{},request.headers.get('Origin')===url.origin);
   if(url.pathname==='/api/installs'){
    if(!env.DB)return json({error:'Install counter unavailable'},503);
    try{

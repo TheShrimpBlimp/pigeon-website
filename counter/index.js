@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Novelty count of client-reported successful installs, including repeats.
+import {trialApi} from '../trial-api.js';
 const origins = new Set(['https://theshrimpblimp.github.io', 'https://theshrimpblimp.com', 'https://www.theshrimpblimp.com']);
 export default {
  async fetch(request, env) {
@@ -7,6 +8,7 @@ export default {
   const headers = {'Cache-Control':'no-store', 'Vary':'Origin'};
   if (origins.has(origin)) headers['Access-Control-Allow-Origin'] = origin;
   const json = (value, status=200) => Response.json(value, {status, headers});
+  if(new URL(request.url).pathname==='/api/trials')return trialApi(request,env,headers,origins.has(origin));
   if (new URL(request.url).pathname !== '/api/installs') return json({error:'Not found'},404);
   if (request.method === 'OPTIONS') {
    if (!origins.has(origin)) return json({error:'Origin not allowed'},403);

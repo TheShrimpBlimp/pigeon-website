@@ -1,4 +1,4 @@
-name: Deploy Pigeon to GitHub Pages
+name: Deploy PIGEON to GitHub Pages
 on:
   push:
     branches: [main]
