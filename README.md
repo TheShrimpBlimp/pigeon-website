@@ -35,3 +35,13 @@ installs are not backfilled. Offline events retry when online; clearing browser
 storage before delivery loses those reports. Statistics never block flashing.
 The existing private Site audience continues to apply to this API and website.
 Build output now uses `dist/client/` assets and `dist/server/` Worker code.
+
+## Browser trial
+
+The homepage links `webapp/emu/`, a WebAssembly build of Pigeon running against
+an FM1 HAL. Build it from the firmware checkout with `sh web/emu/build.sh`
+(Emscripten required) before `web/make_site.py`. It includes CC0 factory demo
+samples and keeps virtual flash separately from the sample tool. Connect FM1
+uses explicit Web MIDI SysEx permission. Existing firmware supplies MIDI notes;
+controller-enabled Pigeon adds a temporary, RAM-only lease for keys, knobs,
+buttons and MASTER. Real hardware verification is pending.
