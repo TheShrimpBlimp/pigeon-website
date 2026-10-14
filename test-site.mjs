@@ -25,7 +25,7 @@ try{
  await installer.locator('#backup').check();assert(await installer.locator('#go').isDisabled());
  assert.equal(await installer.locator('h1').textContent(),'PIGEON');
  assert.equal(await page.locator('.ui-gallery img').count(),3);
- for(const image of await page.locator('main img').all())assert(await image.evaluate(i=>i.complete && i.naturalWidth===960));
+ for(const image of await page.locator('main img').all())assert(await image.evaluate(i=>i.complete && i.naturalWidth===(i.src.endsWith("pigeon-logo.png") ? 240 : 960)));
  assert(!await page.locator('body').textContent().then(t=>t.includes('{{')));
  const links=await page.locator('a').evaluateAll(a=>a.map(x=>x.getAttribute('href')).filter(h=>h&&!h.startsWith('http')&&!h.startsWith('#')));
  for(const link of new Set(links)){const response=await page.request.get(origin+'/'+link);assert.equal(response.status(),200,link);}
