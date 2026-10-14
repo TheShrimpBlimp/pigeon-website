@@ -17,15 +17,15 @@ try{
  const installer=page.frameLocator('iframe[title="PIGEON USB MIDI firmware installer"]');
  await installer.locator('#connect:not([disabled])').waitFor();
  assert(await installer.locator('#go').isDisabled());
- assert((await installer.locator('#package-status').textContent()).includes('0.1-beta-candidate'));
+ assert((await installer.locator('#package-status').textContent()).includes('0.5-beta-candidate'));
  assert((await installer.locator('#package-status').textContent()).includes('checksum verified'));
  assert.equal(await installer.locator('#release-status').textContent(),'Beta candidate: hardware verification pending.');
- assert.equal(await installer.locator('#firmware-download').getAttribute('href'),'../../firmware/pigeon-0.1-beta-candidate.fwsc');
+ assert.equal(await installer.locator('#firmware-download').getAttribute('href'),'../../firmware/pigeon-0.5-beta-candidate.fwsc');
  assert(!await page.locator('#faq').textContent().then(t=>t.includes('It has been installed on an FM1')));
  await installer.locator('#backup').check();assert(await installer.locator('#go').isDisabled());
  assert.equal(await installer.locator('h1').textContent(),'PIGEON');
  assert.equal(await page.locator('.ui-gallery img').count(),3);
- for(const image of await page.locator('main img').all())assert(await image.evaluate(i=>i.complete && i.naturalWidth===960));
+ for(const image of await page.locator('main img').all())assert(await image.evaluate(i=>i.complete && i.naturalWidth===(i.src.endsWith("pigeon-logo.png") ? 240 : 960)));
  assert(!await page.locator('body').textContent().then(t=>t.includes('{{')));
  const links=await page.locator('a').evaluateAll(a=>a.map(x=>x.getAttribute('href')).filter(h=>h&&!h.startsWith('http')&&!h.startsWith('#')));
  for(const link of new Set(links)){const response=await page.request.get(origin+'/'+link);assert.equal(response.status(),200,link);}
