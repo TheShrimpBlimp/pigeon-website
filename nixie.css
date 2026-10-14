@@ -12,3 +12,5 @@
 .nixie-unlit{z-index:0;pointer-events:none;text-shadow:none}
 .nixie-unlit b{position:absolute;inset:0;display:grid;place-items:center;padding-top:6px;font-weight:400;color:#855334;opacity:.24;text-shadow:none;transform:translateX(calc((var(--depth) - 4.5)*.16px))}
 .nixie-active{z-index:1}.nixie-tube:before{z-index:2;pointer-events:none}
+
+.install-counter .counter-note{flex-basis:100%;margin:0;text-align:center;font-size:8px;line-height:1.4;letter-spacing:0;color:#858585}

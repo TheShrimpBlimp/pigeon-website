@@ -1,3 +1,4 @@
+export function counterDigits(total){return total.toString(3).padStart(6,"0");}
 // SPDX-License-Identifier: GPL-3.0-only
 export function renderNixie(container,value){
  const tubes=String(value).split('').map(digit=>{
