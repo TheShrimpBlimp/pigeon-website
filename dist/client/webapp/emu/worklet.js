@@ -50,7 +50,11 @@ if (typeof registerProcessor === "function") {
       const bytes=new Uint8Array(image),ptr=ex.web_upload_buffer(bytes.length);
       if(!ptr)throw Error('The browser has no more sample memory available.');
       new Uint8Array(ex.memory.buffer,ptr,bytes.length).set(bytes);
-      if(ex.web_load_bank(bytes.length,unlimited?1:0,restore?1:0))throw Error('The sample bank could not be loaded.');
+      const used=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength).getUint32(8,true);
+      if(!unlimited && used>0x7D000)throw Error('This bank exceeds the 496 KiB sample limit.');
+      // The published WASM already supports expanded banks in browser memory.
+      // Keep that firmware binary unchanged; the wrapper enforces the new hardware cap.
+      if(ex.web_load_bank(bytes.length,(unlimited||used>0x67000)?1:0,restore?1:0))throw Error('The sample bank could not be loaded.');
       this.sentDraws=-1;
     }
     async onMessage(m) {
