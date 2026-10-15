@@ -5,19 +5,12 @@ shared bank. Synth engines are excluded from the sampler profile, while
 serialized project and backup IDs remain compatible. For the user workflow,
 start with [the tutorial](KO_MODE.md).
 
-The published firmware and web tools retain the 408 KiB payload described
-below. The local v0.3 candidate adds an 88 KiB extent at `0x60000–0x76000`,
-bringing its payload to 496 KiB plus a 4 KiB header. Existing extents keep their
-physical addresses; boot-marker sectors `0x76000–0x78000` stay reserved.
-The candidate package declares the added extent with KOPOOL3 alongside KOPOOL2.
-This expansion has passed simulated storage/recovery checks, not hardware tests.
-Local CLI tools target the candidate layout and negotiate device capacity before
-writing. Use the published web tool for banks matching published firmware.
+v0.3 adds an 88 KiB extent at `0x60000–0x76000`, bringing the shared payload to 496 KiB plus a 4 KiB header. Existing extents keep their physical addresses; boot-marker sectors `0x76000–0x78000` stay reserved. The package declares KOPOOL3 alongside KOPOOL2. Tools negotiate capacity before writing; older 408 KiB firmware rejects larger banks before erase. Storage/recovery simulation checks pass; full expanded-pool hardware endurance checks remain pending.
 
 ## Published capacity and formats
 
-The bank is 421,888 bytes (412 KiB). Its header sector takes 4 KiB, leaving
-417,792 bytes (408 KiB) shared by encoded audio, waveform and MP3 seek indices.
+The bank is 512,000 bytes (500 KiB). Its header sector takes 4 KiB, leaving
+507,904 bytes (496 KiB) shared by encoded audio, waveform and MP3 seek indices.
 Drums use mono IMA ADPCM at 22.05 kHz. The song uses either:
 
 - Indexed mono MP3 at 22.05 kHz, 24–64 kbps; default 32 kbps. The importer disables
@@ -164,7 +157,7 @@ waveform position no longer requests a complete waveform redraw.
 
 ## Two independent songs (bank version 3)
 
-On published firmware, both songs and up to sixteen drum hits share the same 408 KiB payload pool.
+On v0.3, both songs and up to sixteen drum hits share the same 496 KiB payload pool.
 The duration estimates above are combined song duration, not duration per
 song; the second song also has its own seek index and waveform. The default
 32 kbps encoding can hold roughly 90 seconds combined without drums, or
@@ -192,7 +185,7 @@ version 3 bank from the source files to replace its audio.
 ### Preview shared storage before uploading
 
 `tools/ko_bank.py preview BANK.kob` validates a bank locally and shows both songs'
-names, durations and codecs, kit usage, combined consumption of the **408 KiB**
+names, durations and codecs, kit usage, combined consumption of the **496 KiB**
 audio payload, and free space. The `upload` command prints the same preview before
 opening MIDI or writing flash. Preview requires no connected synth.
 

@@ -28,8 +28,8 @@ recovery, two-song/drum playback with FX, sustained retriggers, tempo sync, LEDs
 recording and save/reboot. Browser-only tests cannot establish those outcomes.
 Keep the previous flashed package and a full project/sample recovery archive.
 
-The local v0.3 candidate expands the sample payload to 496 KiB by reclaiming
-legacy asset space. The published firmware and web tools remain at 408 KiB.
+The v0.3 release expands the sample payload to 496 KiB by reclaiming
+legacy asset space. The v0.3 firmware and web tools use the expanded pool; older firmware retains its original capacity.
 Existing bank extents and boot-marker sectors retain their addresses; the new
 extent is appended logically. Serialized FUNA parameter IDs/layout remain unchanged.
 Extended conditions and pitch locks need current PIGEON firmware; older firmware
