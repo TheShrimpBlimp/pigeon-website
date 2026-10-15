@@ -8,12 +8,14 @@ PIGEON has its own page registry, waveform reader, and sampler screens.
 The inherited graph renderers (including synth editors, scope, piano roll,
 sample-source editor, preset lists, and old project/song screens) and engine
 picker are excluded from this profile. Holding or double-tapping EDIT cannot
-open the old engine picker. Scale/chord and sequencer-tool quick layers draw
-their own parameter cards without the inherited page renderer.
+open the old engine picker. The FX macro keyboard, scale/chord tools and duplicate
+recording overlay have been removed. GLO mixer and SEQ tool overlays remain.
 Their input path also excludes generic preset browsing and old page actions;
 the PRESETS encoder selects chops, sequence steps or patterns in PIGEON.
 
-The product menu omits KO MODE, USB SERIAL, HOME and SCOPE. Its navigation
+The product menu omits KO MODE, USB SERIAL, HOME and SCOPE, along with
+legacy palette/style/large-layout, acceleration, FX latch, scale LEDs,
+step-preview, chord-entry and generic help options. Its navigation
 uses visible rows, so removed settings cannot be selected by scrolling or
 restoring an obsolete selection. Editor menu descriptors omit unsupported
 serial and old home/scope settings; remaining setting IDs keep their meaning.

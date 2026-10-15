@@ -1,4 +1,4 @@
-# PIGEON controls — v0.3 candidate
+# PIGEON controls — v0.3
 
 PIGEON is sampler firmware for the M-VAVE FM1: Song 1, drum kit, and Song 2.
 Choose the track first; edits belong to that track. Song 2 can hold drum loops.
@@ -31,8 +31,7 @@ reference; it follows project BPM within 50–200% speed. Changing chop boundari
 does not recapture the reference until a sync control is adjusted. SPEED % shows
 the sync factor, before OCT and step pitch. It is not pitch-preserving stretching.
 
-Published firmware and web tools share 408 KiB between both songs and the kit.
-The local v0.3 candidate proposes 496 KiB; hardware verification remains pending. The songs share eight sounding voices; the drum kit has four additional voices. White song keys
+v0.3 firmware and web tools share 496 KiB between both songs and the kit. The songs share eight sounding voices; the drum kit has four additional voices. White song keys
 cover chops 1–16; black keys add 17–27; PRESETS selects later chops and changes the key bank to reach 28–32.
 Drums have 16 one-shot pads. Held loops default on, latch defaults off.
 
@@ -67,3 +66,15 @@ From chop operations (EDIT → LFO), tap ENV to open key assignment. K1 selects 
 The sample loader offers the same Swap and Move operations. It also copies drum audio and settings: choose a source Pad, a Copy to pad destination, and Copy pad to key. Send the resulting bank to use it on hardware.
 
 Loader Undo/Redo supports Ctrl+Z / Cmd+Z, Ctrl+Shift+Z / Cmd+Shift+Z and Ctrl+Y for committed local edits. Text inputs retain text undo. The Session library keeps multiple named banks or full sessions locally, with download backups. Neither workspace undo nor library loading writes to the FM1.
+
+## Held-button shortcuts
+
+Page buttons open their pages immediately on press; releasing them does not navigate again. HOME returns to the waveform from another page. Press HOME on the waveform to open Settings, then HOME again to return. Hold GLO for mixer shortcuts and SEQ for sequence tools. FX opens the PIGEON effects pages, SCL opens Patterns, EDIT opens chops, and REC arms recording. Their inherited macro, scale/chord, engine-picker and recording overlays have been removed. Recording preferences remain available through LFO from Timing.
+
+## Reading the screen
+
+Parameter pages use a consistent four-card grid: K1/K2 on the top row and K3/K4 on the bottom row. Page actions and navigation appear along the bottom. The top strip shows track, phrase, transport/record state, BPM and battery. FX labels EDIT as RESET; HOME returns to the waveform. See [the UI reference](PIGEON_UI.md) for the local v0.3 layout and render workflow.
+
+### Audition a chop ending
+
+Hold **EDIT** and press a chop key to audition its final two seconds. Short chops play from the start. ADPCM uses the nearest decoder checkpoint after the two-second position; MP3 seeks directly to that position. The audition plays once, leaves chop boundaries unchanged, and bypasses recording, quantization and MIDI output. Release EDIT for normal playback. Available on both song tracks; drums keep their normal behavior.
