@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
-export function counterBase(time) {
- const digits=[time.getHours(),time.getMinutes(),time.getSeconds()].map(n=>String(n).padStart(2,'0')).join('');
- const candidates=[...digits].map(Number).filter(n=>n>=2&&n<=5);
- return candidates.length?Math.min(...candidates):10;
-}
-// Freeze the choice at navigation time, before asynchronous counter requests finish.
-export const pageCounterBase=counterBase(new Date(globalThis.performance?.timeOrigin??Date.now()));
+export function counterBase(random=Math.random) { return 2+Math.floor(random()*6); }
+// Choose once per page load, before asynchronous counter requests finish.
+export const pageCounterBase=counterBase();
 export function counterDigits(total,base=pageCounterBase,width=6){return total.toString(base).padStart(width,'0');}
 export function counterNote(total,base=pageCounterBase){
  if(base===10)return '';

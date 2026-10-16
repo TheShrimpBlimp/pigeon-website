@@ -23,15 +23,15 @@ stats=await (await worker.fetch(new Request(url,{method:'POST',headers:{Origin:'
 assert.equal(sqlite.prepare('SELECT total FROM counter').get().total,6);
 assert.equal((await worker.fetch(new Request(url,{method:'POST',headers:{Origin:'https://evil.test'}}),{DB})).status,403);
 assert.equal((await (await worker.fetch(new Request('https://counter.test/api/trials'),{DB})).json()).total,0);
-for(let hour=0;hour<24;hour++)for(let min=0;min<60;min++)for(let sec=0;sec<60;sec++){
- const eligible=`${hour}`.padStart(2,'0').concat(`${min}`.padStart(2,'0'),`${sec}`.padStart(2,'0')).split('').map(Number).filter(n=>n>=2&&n<=5);
- assert.equal(counterBase(new Date(2026,0,1,hour,min,sec)),eligible.length?Math.min(...eligible):10);
+for(let base=2;base<=7;base++) {
+ assert.equal(counterBase(()=>(base-2+.5)/6),base);
+ assert.equal(counterBase(()=>(base-2)/6),base);
 }
-for(const [h,m,s,base] of [[12,34,56,2],[1,3,0,3],[0,4,0,4],[11,55,11,5],[11,16,19,10]])assert.equal(counterBase(new Date(2026,0,1,h,m,s)),base);
+assert.equal(counterBase(()=>0),2);assert.equal(counterBase(()=>1-Number.EPSILON),7);
 assert.equal(counterNote(100,10),'');
-for(const [base,label] of [[2,'binary'],[3,'trinary'],[4,'base 4'],[5,'base 5']]){
+for(const [base,label] of [[2,'binary'],[3,'trinary'],[4,'base 4'],[5,'base 5'],[6,'base 6'],[7,'base 7']]){
  assert(counterNote(1234,base).includes(label));assert(counterNote(1234,base).includes('In the decimal system, the count is: 1,234'));
  assert.equal(parseInt(counterDigits(1234,base),base),1234);
 }
 assert.equal(counterDigits(2**7,2,7).length,8);assert.equal(counterDigits(0,5,7),'0000000');
-console.log('Counter tests passed: all 86,400 clock times, base labels/decimal fallback, automatic digit growth, combined totals, hourly caching, invalid/offline retention, CORS and independent trial totals.');
+console.log('Counter tests passed: all six random-base buckets and boundaries, base labels, automatic digit growth, combined totals, hourly caching, invalid/offline retention, CORS and independent trial totals.');
