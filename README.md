@@ -1,6 +1,6 @@
 # PIGEON download and setup site
 
-Current release: **PIGEON v0.3**, with 496 KiB shared sample storage. The main firmware excludes the experimental screen reader. Published assets are under `dist/client/`; the Pages workflow prepares and deploys that directory.
+Current release: **PIGEON v0.3.1**, with 496 KiB shared sample storage. The main firmware excludes the experimental screen reader. Published assets are under `dist/client/`; the Pages workflow prepares and deploys that directory.
 
 Edit `index.html` and `site.css` here. The current offline sample tool stays in
 `../pigeon/`; firmware packaging lives in `../make_site.py`.
@@ -8,7 +8,7 @@ Edit `index.html` and `site.css` here. The current offline sample tool stays in
 From the project root, build with:
 
 ```sh
-.venv/bin/python web/make_site.py build/pigeon.fwsc 0.3 web/site/dist
+.venv/bin/python web/make_site.py build/pigeon.fwsc 0.3.1 web/site/dist
 ```
 
 `dist/` contains the complete static site, current firmware, matching source,
@@ -49,7 +49,7 @@ and applied trim ranges persist for editing again after reload. Imports are norm
 resampled locally to 22.05 kHz. FM1 mode offers per-song MP3 compression at
 24, 32, 40, 48, 56 or 64 kbps (64 by default), using the sample tool’s bundled
 encoder. Drum pads use IMA ADPCM. Unlimited mode uses IMA ADPCM for songs. FM1 storage mode enforces the real
-408 KiB shared payload pool, including waveform/alignment overhead. Unlimited
+496 KiB shared payload pool, including waveform/alignment overhead. Unlimited
 mode uses a browser-only expanded bank and is bounded by browser memory, rather
 than FM1 flash. Samples persist in IndexedDB, virtual settings/projects in
 separate browser-local flash. No samples are uploaded or included in releases.
