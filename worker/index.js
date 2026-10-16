@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Anonymous, client-reported completed installs. No device/user identity stored.
 import {trialApi} from '../trial-api.js';
+import {hubInstalls} from '../hub-count.js';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 export default {
  async fetch(request,env){
@@ -12,7 +13,7 @@ export default {
     if(request.method==='GET'){
      const total=await env.DB.prepare('SELECT COUNT(*) AS total FROM installs').first();
      const releases=await env.DB.prepare('SELECT release, COUNT(*) AS installs FROM installs GROUP BY release ORDER BY installs DESC').all();
-     return json({total:total.total,releases:releases.results,definition:'Client-reported successful installations, including reinstalls. Not unique devices.'});
+     return json({total:total.total+await hubInstalls(env.DB),releases:releases.results,definition:'Client-reported successful installations, including reinstalls. Not unique devices.'});
     }
     if(request.method!=='POST')return json({error:'Method not allowed'},405);
     if(request.headers.get('Origin')!==url.origin)return json({error:'Same-origin requests required'},403);

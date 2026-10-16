@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import worker from './worker/index.js';
-const sqlite=new DatabaseSync(':memory:');sqlite.exec(fs.readFileSync('web/site/drizzle/0000_installs.sql','utf8'));
+const sqlite=new DatabaseSync(':memory:');sqlite.exec(fs.readFileSync(new URL('./drizzle/0000_installs.sql',import.meta.url),'utf8'));
+sqlite.exec(fs.readFileSync(new URL('./drizzle/0002_external_installs.sql',import.meta.url),'utf8'));
+globalThis.fetch=async()=>Response.json({firmwares:[{id:'pigeon',installs:0}]});
 const DB={prepare(sql){let values=[];return {bind(...v){values=v;return this;},async run(){return sqlite.prepare(sql).run(...values);},async first(){return sqlite.prepare(sql).get(...values);},async all(){return {results:sqlite.prepare(sql).all(...values)};}};}};
 const env={DB,ASSETS:{fetch:()=>new Response('asset')}};
 const url='https://pigeon.test/api/installs';
@@ -24,7 +26,7 @@ console.log('Install counter: persistence, retry deduplication, reinstalls, vali
 
 // The public counter shares anonymous trial deduplication with the hosted Worker.
 import publicCounter from './counter/index.js';
-sqlite.exec(fs.readFileSync('web/site/drizzle/0001_trials.sql','utf8'));
+sqlite.exec(fs.readFileSync(new URL('./drizzle/0001_trials.sql',import.meta.url),'utf8'));
 const trialUrl='https://pigeon.test/api/trials', trial={id:crypto.randomUUID()};
 const trialRequest=(data,origin='https://pigeon.test')=>new Request(trialUrl,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(data)});
 assert.equal((await worker.fetch(trialRequest(trial),env)).status,200);
