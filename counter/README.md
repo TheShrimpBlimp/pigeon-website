@@ -3,7 +3,7 @@
 Cloudflare Worker + D1, used by the GitHub Pages site. `endpoint.txt` connects
 both the homepage and completed-install reports during `scripts/prepare-pages.py`.
 
-GET `/api/installs` returns `{ "total": 0 }`. POST increments the total.
+GET `/api/installs` returns the local successful-install count plus PIGEON installs reported by Firmware Hub. POST increments only the local count. Hub counts are fetched from its public catalogue and stored separately in `external_install_counts`, refreshed at most hourly; refresh failures retain the last known value. Reapplying `schema.sql` creates the cache table without changing the existing counter.
 Reports include reinstalls and retries; there is deliberately no duplicate protection.
 This is a novelty, client-reported count, not a count of unique devices.
 No sample data or device identifiers are stored by this Worker.
@@ -21,3 +21,7 @@ in Wrangler's local authentication storage and must never be committed.
 The emulator also uses `/api/trials`: one successful start per random ID stored
 in the visitor's browser, with the ID and day in D1. This counts browser trials,
 not unique people. Apply `../drizzle/0001_trials.sql` before deploying the Worker.
+
+The homepage and emulator choose their numeral base once from the navigation-start time (local HH:MM:SS). The lowest digit between 2 and 5 is used. If none exists, they use decimal and hide the note. Other bases name binary, trinary, base 4 or base 5 and show the decimal total below. Nixie digits expand without truncation; emulator trials remain separate from firmware installs.
+
+Run `node test-counter-sources.mjs` and `node test-counter-browser.mjs` for counter validation.
