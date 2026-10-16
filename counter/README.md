@@ -22,6 +22,6 @@ The emulator also uses `/api/trials`: one successful start per random ID stored
 in the visitor's browser, with the ID and day in D1. This counts browser trials,
 not unique people. Apply `../drizzle/0001_trials.sql` before deploying the Worker.
 
-The homepage and emulator choose their numeral base once from the navigation-start time (local HH:MM:SS). The lowest digit between 2 and 5 is used. If none exists, they use decimal and hide the note. Other bases name binary, trinary, base 4 or base 5 and show the decimal total below. Nixie digits expand without truncation; emulator trials remain separate from firmware installs.
+The homepage and emulator randomly choose a base from 2 through 7 inclusive once per page load. The note names binary, trinary, base 4, base 5, base 6 or base 7 and shows the decimal total below. Nixie digits expand without truncation; emulator trials remain separate from firmware installs.
 
 Run `node test-counter-sources.mjs` and `node test-counter-browser.mjs` for counter validation.
