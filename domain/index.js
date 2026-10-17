@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Keep the GitHub Pages release as the single source of site assets.
-import {countryGate} from './gate.js';
 export default {
- async fetch(request, env, ctx) {
-  const gate=await countryGate(request,env,ctx);
-  if(gate)return gate;
+ async fetch(request) {
   const url = new URL(request.url);
   if (url.pathname === '/pigeon') {
    url.pathname = '/pigeon/';
