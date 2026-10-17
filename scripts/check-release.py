@@ -32,7 +32,16 @@ for page in pages:
         parts = urlsplit(url)
         if parts.scheme or parts.netloc or not parts.path:
             continue
-        target = (page.parent / unquote(parts.path)).resolve()
+        route = unquote(parts.path)
+        if route.startswith("/"):
+            # Custom-domain homepage routes coexist with the /pigeon/ release.
+            if route == "/": target = release / "home/index.html"
+            elif route == "/pigeon" or route.startswith("/pigeon/"):
+                target = release / route.removeprefix("/pigeon").lstrip("/")
+            else: target = release / route.lstrip("/")
+            target = target.resolve()
+        else:
+            target = (page.parent / route).resolve()
         assert target.is_relative_to(release.resolve()), f"Link escapes release: {page}: {url}"
         assert target.exists(), f"Broken release link: {page}: {url}"
 
