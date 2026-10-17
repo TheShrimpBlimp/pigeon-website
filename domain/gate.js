@@ -23,19 +23,7 @@ async function accepted(request,secret){
  const [expiry,mac]=cookie.split('.');const now=Math.floor(Date.now()/1000);
  return /^\d{10}$/.test(expiry||'') && Number(expiry)>now && Number(expiry)<=now+YEAR+60 && equal(mac||'',await sign(secret,'ack:'+expiry));
 }
-async function record(env,request,clicked){
- const ip=request.headers.get('CF-Connecting-IP');if(!ip)return;
- const hash=await sign(env.GATE_SECRET,'visitor:'+ip),now=Math.floor(Date.now()/1000);
- await env.DB.prepare(`INSERT INTO gate_visitors(country,visitor_hash,first_seen,last_seen,acknowledged_at,clicks)
- VALUES(?,?,?,?,?,?) ON CONFLICT(country,visitor_hash) DO UPDATE SET last_seen=excluded.last_seen,
- acknowledged_at=COALESCE(gate_visitors.acknowledged_at,excluded.acknowledged_at),clicks=gate_visitors.clicks+excluded.clicks`)
- .bind(request.cf.country,hash,now,now,clicked?now:null,clicked?1:0).run();
-}
-function analytics(env,request,ctx,clicked=false){
- const task=record(env,request,clicked).catch(()=>console.warn('Gate count unavailable'));
- if(ctx?.waitUntil)ctx.waitUntil(task);return task;
-}
-export async function countryGate(request,env,ctx){
+export async function countryGate(request,env){
  const url=new URL(request.url);
  if(!COUNTRIES.has(request.cf?.country)){
   if(url.pathname===PATH)return response(null,303,{Location:'/'});
@@ -43,17 +31,15 @@ export async function countryGate(request,env,ctx){
  }
  if(url.pathname===FONT && ['GET','HEAD'].includes(request.method))return null;
  // Missing deployment configuration must not silently bypass the requested gate.
- if(!env?.GATE_SECRET || !env?.DB)return response('Temporarily unavailable',503,{'Retry-After':'60'});
+ if(!env?.GATE_SECRET)return response('Temporarily unavailable',503,{'Retry-After':'60'});
  if(url.pathname===PATH && request.method==='POST'){
   if(request.headers.get('Origin')!==url.origin)return response('Invalid request',403);
   if(Number(request.headers.get('Content-Length'))>2048)return response('Request too large',413);
   const text=await request.text();if(text.length>2048)return response('Request too large',413);
   const form=new URLSearchParams(text),next=returnPath(form.get('returnTo'));
-  await analytics(env,request,ctx,true);
   const expiry=Math.floor(Date.now()/1000)+YEAR,mac=await sign(env.GATE_SECRET,'ack:'+expiry);
   return response(null,303,{Location:next,'Set-Cookie':`${COOKIE}=${expiry}.${mac}; Path=/; Max-Age=${YEAR}; Secure; HttpOnly; SameSite=Lax`});
  }
- analytics(env,request,ctx);
  if(await accepted(request,env.GATE_SECRET)){
   if(url.pathname===PATH)return response(null,303,{Location:returnPath(url.searchParams.get('returnTo'))});
   return null;

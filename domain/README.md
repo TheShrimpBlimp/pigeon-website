@@ -27,27 +27,17 @@ remains its separate Worker and already allows the theshrimpblimp.com origin.
 A signed Secure/HttpOnly/SameSite cookie remembers the action for one year.
 Other countries bypass the gate. The gate's font file is allowed before entry.
 
-Counts are separate by country: distinct keyed IP hashes that visited, distinct
-hashes that clicked, and total acknowledgement clicks. Raw IP addresses are
-not persisted by this code; hashes are pseudonymous. Shared/changing IPs mean
-these are not counts of people. Metrics are queried privately, not exposed on
-the public site. Counting failures do not prevent acknowledgement.
+The gate does not read, hash or store visitor IP addresses, record visits, or
+count acknowledgements. Its cookie only remembers acknowledgement; there is no
+server-side visitor record. Hosting-provider logs are configured separately.
 
-Before publishing, initialize the table and configure a stable private secret:
+Before publishing, configure a stable private secret:
 
 ```sh
-wrangler d1 execute pigeon-installs --remote --file domain/gate-schema.sql --config domain/wrangler.json
 openssl rand -hex 32 | wrangler secret put GATE_SECRET --config domain/wrangler.json
 wrangler deploy --config domain/wrangler.json
 ```
 
-Read counts with:
-
-```sh
-wrangler d1 execute pigeon-installs --remote --file domain/gate-counts.sql --config domain/wrangler.json
-```
-
-Rotating the secret invalidates acknowledgement cookies and changes visitor
-hashes. Missing configuration returns 503 for gated requests. This applies to
+Rotating the secret invalidates acknowledgement cookies. Missing configuration returns 503 for gated requests. This applies to
 the custom domain; public mirrors and existing offline caches remain separate.
-Run focused tests with `node domain/test-gate.mjs` (Node with `node:sqlite`).
+Run focused tests with `node domain/test-gate.mjs`.
