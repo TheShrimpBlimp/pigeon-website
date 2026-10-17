@@ -7,10 +7,12 @@ export default {
    url.pathname = '/pigeon/';
    return Response.redirect(url.toString(), 308);
   }
-  if (!url.pathname.startsWith('/pigeon/')) return new Response('Not found', {status:404});
+  const home = url.pathname === '/' || url.pathname === '/index.html';
+  const homeAsset = ['/home/home.css', '/home/marwan.jpg'].includes(url.pathname);
+  if (!home && !homeAsset && !url.pathname.startsWith('/pigeon/')) return new Response('Not found', {status:404});
   if (!['GET','HEAD'].includes(request.method)) return new Response('Method not allowed', {status:405});
   const upstream = new URL('https://theshrimpblimp.github.io');
-  upstream.pathname = '/pigeon-website/' + url.pathname.slice('/pigeon/'.length);
+  upstream.pathname = '/pigeon-website/' + (home ? 'home/index.html' : homeAsset ? url.pathname.slice(1) : url.pathname.slice('/pigeon/'.length));
   upstream.search = url.search;
   // GitHub's CDN can retain old assets even after a Pages deployment.
   upstream.searchParams.set('_pigeon_refresh', String(Math.floor(Date.now() / 60000)));

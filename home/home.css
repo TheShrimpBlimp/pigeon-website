@@ -1,0 +1,18 @@
+/* The personal homepage shares PIGEON's Little Character font and palette. */
+.personal-home{min-height:100svh;display:flex;flex-direction:column}
+.personal-home header,.personal-home main,.personal-home .home-footer{width:min(100%,1160px)}
+.personal-home main{flex:1}
+.personal-home .wordmark{font-size:25px}
+.personal-home nav [aria-current=page]{color:var(--green)}
+.home-intro{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:80px;align-items:center;padding:72px 0}
+.home-intro h1{font-size:clamp(56px,6.5vw,82px);line-height:1.03;margin-bottom:30px}
+.home-intro .introduction{font-size:20px;line-height:1.65;max-width:540px;margin:0;color:var(--fg)}
+.construction{margin-top:38px;border-top:1px solid var(--line);padding-top:22px;color:var(--muted);font-size:16px;max-width:540px}
+.construction p{margin:0 0 10px}.construction p:last-child{margin-bottom:0}.construction a{color:var(--green)}
+.portrait{margin:0;padding:9px;border:1px solid var(--line);background:var(--panel)}
+.portrait img{display:block;width:100%;height:auto}
+.personal-home footer.home-footer{margin:0 auto;padding:28px 32px 30px}
+.home-footer .footer-info{align-items:center}.home-footer .footer-info>p:last-child{text-align:right}
+.skip-link{position:absolute;top:8px;left:16px;z-index:1;padding:8px 12px;background:var(--green);color:var(--bg);transform:translateY(-160%)}.skip-link:focus{transform:translateY(0)}
+@media(max-width:800px){.personal-home header{flex-direction:row;align-items:center}.personal-home .wordmark{font-size:20px}.personal-home nav{gap:18px}.home-intro{gap:35px;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);padding:50px 0}.home-intro h1{font-size:54px}.home-intro .introduction{font-size:17px}.construction{font-size:14px;margin-top:26px}}
+@media(max-width:600px){.personal-home header{align-items:flex-start;flex-direction:column;gap:18px}.home-intro{grid-template-columns:1fr;gap:32px;padding:40px 0}.home-intro h1{font-size:58px}.portrait{width:100%;max-width:390px}.home-footer .footer-info>p:last-child{text-align:left}.personal-home footer.home-footer{padding-left:20px;padding-right:20px}}
