@@ -8,6 +8,7 @@ target = root / "build/pages"
 shutil.rmtree(target, ignore_errors=True)
 shutil.copytree(root / "dist/client", target)
 shutil.copytree(root / "home", target / "home", dirs_exist_ok=True)
+shutil.copytree(root / "bitfeedback", target / "bitfeedback", dirs_exist_ok=True)
 (target / ".nojekyll").touch()
 endpoint_file = root / "counter/endpoint.txt"
 endpoint = endpoint_file.read_text().strip() if endpoint_file.exists() else ""

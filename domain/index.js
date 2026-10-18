@@ -1,18 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Keep the GitHub Pages release as the single source of site assets.
+import {feedbackSubmission} from './bitfeedback.js';
 export default {
- async fetch(request) {
+ async fetch(request, env) {
+  const submission = await feedbackSubmission(request,env);
+  if (submission) return submission;
   const url = new URL(request.url);
   if (url.pathname === '/pigeon') {
    url.pathname = '/pigeon/';
    return Response.redirect(url.toString(), 308);
   }
   const home = url.pathname === '/' || url.pathname === '/index.html';
+  const feedback = url.pathname === '/bitfeedback' || url.pathname === '/bitfeedback/';
+  const feedbackAsset = /^\/bitfeedback\/(?:feedback\.(?:css|js)|flow\.js|images\.json|credits\.html|assets\/[a-z0-9-]+\.jpg)$/.test(url.pathname);
   const homeAsset = ['/home/home.css', '/home/marwan.jpg'].includes(url.pathname);
-  if (!home && !homeAsset && !url.pathname.startsWith('/pigeon/')) return new Response('Not found', {status:404});
+  if (!home && !homeAsset && !feedback && !feedbackAsset && !url.pathname.startsWith('/pigeon/')) return new Response('Not found', {status:404});
   if (!['GET','HEAD'].includes(request.method)) return new Response('Method not allowed', {status:405});
   const upstream = new URL('https://theshrimpblimp.github.io');
-  upstream.pathname = '/pigeon-website/' + (home ? 'home/index.html' : homeAsset ? url.pathname.slice(1) : url.pathname.slice('/pigeon/'.length));
+  upstream.pathname = '/pigeon-website/' + (feedback ? 'bitfeedback/index.html' : feedbackAsset ? url.pathname.slice(1) : home ? 'home/index.html' : homeAsset ? url.pathname.slice(1) : url.pathname.slice('/pigeon/'.length));
   upstream.search = url.search;
   // GitHub's CDN can retain old assets even after a Pages deployment.
   upstream.searchParams.set('_pigeon_refresh', String(Math.floor(Date.now() / 60000)));

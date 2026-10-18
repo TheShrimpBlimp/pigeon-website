@@ -18,3 +18,12 @@ wrangler deploy --config domain/wrangler.json
 
 Cloudflare manages the custom-domain DNS and HTTPS certificate. The counter
 remains its separate Worker and already allows the theshrimpblimp.com origin.
+
+## Bit feedback
+
+`/bitfeedback` and `/bitfeedback/` serve `bitfeedback/index.html`. Supporting
+assets are restricted to the explicitly allowed files in `index.js`.
+`POST /api/bitfeedback/submit` validates the Fartcha selection and survey path,
+then returns a signed CSV without storing answers. It requires the private
+`FEEDBACK_SIGNING_KEY` Worker secret. See `bitfeedback/README.md` for key setup,
+verification and local checks. No new database or analytics bindings are used.
