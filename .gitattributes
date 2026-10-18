@@ -1,0 +1,2 @@
+# Preserve the exact signed bytes of the CSV verification fixture.
+tests/fixtures/bit-feedback-signed.csv -text -diff

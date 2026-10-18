@@ -70,3 +70,30 @@ firmware or website test suite is required for these checks.
 Photo provenance, authors and reuse licenses are in `credits.html`.
 
 Initialize the aggregate counter with `wrangler d1 execute pigeon-installs --remote --file domain/bitfeedback-schema.sql --config domain/wrangler.json`. It starts at zero; earlier submissions were not tracked and cannot be reconstructed. The total increments only after a valid CSV has been signed, not on page views or failed Fartcha attempts. Retries after a network interruption can count again; this counts completions, not unique people.
+
+## Browser viewer
+
+`/bitfeedback/viewer` opens received CSVs locally. Choose multiple files or drop
+files into the upload area. Each file is checked against the pinned public key
+in `verification.js` using Web Crypto on its original bytes. The page separates
+verified, invalid-signature, unsigned and unreadable files, lets you filter them,
+and displays answers and date responses. Unverified answers are collapsed by
+default. Clear files removes them from the viewer. No CSV contents are uploaded
+or persisted in browser storage; no counter is incremented by using the viewer.
+
+A valid signature proves the signed answers are unchanged since signing, not
+respondent identity or truthfulness. Keep the original downloaded CSV, because
+spreadsheet applications may rewrite its bytes. The viewer permits at most 100
+files at once and 1 MiB per file. Answer contents are rendered as plain text.
+
+Focused checks:
+
+```sh
+node tests/feedback-verification-test.mjs
+PIGEON_PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs node tests/feedback-viewer-browser.mjs
+```
+
+`tests/fixtures/bit-feedback-signed.csv` contains only synthetic example answers
+and is signed by the site's existing key. The test also checks that the browser
+key matches `signing-public-key.txt`. When rotating keys, retain old verification
+keys and update the verifier and fixture deliberately.

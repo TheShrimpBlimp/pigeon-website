@@ -27,3 +27,7 @@ assets are restricted to the explicitly allowed files in `index.js`.
 then returns a signed CSV without storing answers. It requires the private
 `FEEDBACK_SIGNING_KEY` Worker secret. See `bitfeedback/README.md` for key setup,
 verification and local checks. The existing D1 database stores only a separate aggregate completed-feedback total, initialized with `bitfeedback-schema.sql`. No answers or visitor identifiers are persisted.
+
+`/bitfeedback/viewer` and its trailing-slash form serve the local CSV viewer.
+Its JavaScript verifies signatures in the browser; this route receives no file
+uploads and adds no server API or storage.

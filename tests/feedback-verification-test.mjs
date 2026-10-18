@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
+import {verifyFeedback,parseCSV,PUBLIC_KEY} from '../bitfeedback/verification.js';
+const sample=new Uint8Array(await readFile(new URL('./fixtures/bit-feedback-signed.csv',import.meta.url)));
+const decode=b=>new TextDecoder().decode(b),encode=s=>new TextEncoder().encode(s);
+const pem=await readFile(new URL('../bitfeedback/signing-public-key.txt',import.meta.url),'utf8');assert.equal(PUBLIC_KEY,pem.replace(/-----[^\n]+-----|\s/g,''));
+let r=await verifyFeedback(sample);assert.equal(r.status,'valid');assert.equal(r.fields.get('q1'),'A fictional bit, with "quotes"');assert(r.fields.get('q2').includes('\n'));assert(r.fields.get('q2').includes('<img'));
+r=await verifyFeedback(encode(decode(sample).replace('Example reviewer','Another reviewer')));assert.equal(r.status,'invalid');
+r=await verifyFeedback(encode(decode(sample).replace(/"signature","p256:[^\r\n]+\r\n$/,'')));assert.equal(r.status,'unsigned');
+r=await verifyFeedback(encode(decode(sample).replace('p256:','bad:')));assert.equal(r.status,'invalid');
+r=await verifyFeedback(encode(decode(sample).replaceAll('\r\n','\n')));assert.equal(r.status,'invalid');
+assert.deepEqual(parseCSV('"a","b,b"\r\n"x","say ""hi""\nthen bye"\r\n'),[['a','b,b'],['x','say "hi"\nthen bye']]);
+assert.throws(()=>parseCSV('"a"x,b'));assert.throws(()=>parseCSV('"unclosed'));assert.throws(()=>parseCSV('a"b,c'));
+await assert.rejects(verifyFeedback(encode('field,answer\nformat,other\n')));
+await assert.rejects(verifyFeedback(encode(decode(sample)+'"q0","duplicate"\r\n')));
+await assert.rejects(verifyFeedback(new Uint8Array(1024*1024+1)));
+console.log('Pinned-key verification, modified/unsigned/malformed files, UTF-8, multiline/quoted CSV and size limits passed.');

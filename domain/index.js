@@ -18,14 +18,15 @@ export default {
    return Response.redirect(url.toString(), 308);
   }
   const home = url.pathname === '/' || url.pathname === '/index.html';
+  const viewer = ['/bitfeedback/viewer','/bitfeedback/viewer/'].includes(url.pathname);
   const feedback = url.pathname === '/bitfeedback' || url.pathname === '/bitfeedback/';
-  const feedbackAsset = /^\/bitfeedback\/(?:feedback\.(?:css|js)|flow\.js|images\.json|credits\.html|assets\/[a-z0-9-]+\.jpg)$/.test(url.pathname);
+  const feedbackAsset = /^\/bitfeedback\/(?:feedback\.(?:css|js)|viewer\.(?:css|js)|verification\.js|flow\.js|images\.json|credits\.html|assets\/[a-z0-9-]+\.jpg)$/.test(url.pathname);
   const errorAsset = url.pathname === '/errors/gnome.gif';
   const homeAsset = ['/home/home.css', '/home/marwan.jpg', '/home/face-icon.png', '/home/favicon.ico'].includes(url.pathname);
-  if (!home && !homeAsset && !feedback && !feedbackAsset && !errorAsset && !url.pathname.startsWith('/pigeon/')) return notFound(request);
+  if (!home && !homeAsset && !feedback && !viewer && !feedbackAsset && !errorAsset && !url.pathname.startsWith('/pigeon/')) return notFound(request);
   if (!['GET','HEAD'].includes(request.method)) return new Response('Method not allowed', {status:405});
   const upstream = new URL('https://theshrimpblimp.github.io');
-  upstream.pathname = '/pigeon-website/' + (errorAsset ? 'errors/gnome.gif' : feedback ? 'bitfeedback/index.html' : feedbackAsset ? url.pathname.slice(1) : home ? 'home/index.html' : homeAsset ? url.pathname.slice(1) : url.pathname.slice('/pigeon/'.length));
+  upstream.pathname = '/pigeon-website/' + (viewer ? 'bitfeedback/viewer.html' : errorAsset ? 'errors/gnome.gif' : feedback ? 'bitfeedback/index.html' : feedbackAsset ? url.pathname.slice(1) : home ? 'home/index.html' : homeAsset ? url.pathname.slice(1) : url.pathname.slice('/pigeon/'.length));
   upstream.search = url.search;
   // GitHub's CDN can retain old assets even after a Pages deployment.
   upstream.searchParams.set('_pigeon_refresh', String(Math.floor(Date.now() / 60000)));
