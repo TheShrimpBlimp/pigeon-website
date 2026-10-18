@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feedback viewer — The Shrimp Blimp</title>
+<meta name="description" content="Read and verify signed Bit Feedback CSV files locally in your browser.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://theshrimpblimp.com/bitfeedback/viewer">
+<link rel="stylesheet" href="/pigeon/site.css"><link rel="stylesheet" href="/pigeon/footer.css"><link rel="stylesheet" href="/bitfeedback/viewer.css">
+<script type="module" src="/pigeon/footer.js"></script><script type="module" src="/bitfeedback/viewer.js"></script>
+<link rel="icon" type="image/png" sizes="192x192" href="https://theshrimpblimp.com/home/face-icon.png">
+<link rel="shortcut icon" href="https://theshrimpblimp.com/favicon.ico">
+</head>
+<body class="feedback-viewer">
+<a class="skip-link" href="#main">Skip to content</a>
+<header><a class="wordmark" href="/">THE SHRIMP BLIMP<span>DEPARTMENT OF CONSTRUCTIVE CRITICISM</span></a><nav aria-label="Main navigation"><a href="/">Home</a><a href="/pigeon/">PIGEON ↗</a></nav></header>
+<main id="main">
+<p class="eyebrow">BIT FEEDBACK / RECEIVING DEPARTMENT</p>
+<h1>Let’s see<br>the feedback.</h1>
+<p class="viewer-intro">Open the CSVs you received to read the answers and check their signatures.</p>
+<div id="drop-zone" class="drop-zone"><label class="file-button" for="csv-files">Choose CSV files ↗</label><input id="csv-files" type="file" accept=".csv,text/csv" multiple><p>or drop them here</p><span class="fine">Files are read and verified in your browser. They aren’t uploaded.</span></div>
+<div class="viewer-toolbar" id="viewer-toolbar" hidden><p id="summary" role="status" aria-live="polite"></p><div><label for="filter">Show</label><select id="filter"><option value="all">All files</option><option value="valid">Verified</option><option value="attention">Needs attention</option></select><button type="button" id="clear-files">Clear files</button></div></div>
+<p id="file-status" role="status" aria-live="polite"></p>
+<div id="results"></div>
+<p id="no-matches" hidden>No files match this filter.</p>
+<p class="fine verification-note">A valid signature confirms the answers are unchanged since this site signed them. It doesn’t verify the respondent’s identity or whether their answers are true. Saving a CSV in a spreadsheet can change its bytes and invalidate its signature.</p>
+<noscript>This viewer needs JavaScript to read files and verify signatures.</noscript>
+</main>
+<footer class="pigeon-footer"><div class="footer-actions"><a class="footer-action" href="https://github.com/TheShrimpBlimp" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a class="footer-action" href="https://buymeacoffee.com/theshrimpb1" target="_blank" rel="noopener noreferrer">Buy me a coffee ↗</a><button class="footer-action footer-font" id="font-nerds" type="button">for font nerds</button></div><div class="footer-info"><p class="footer-title">Marwan Al Kharrat · The Shrimp Blimp</p><p>Font by Disastrid: <a href="https://github.com/disastrid/LittleCharacter">Little Character</a>. <a href="/bitfeedback/credits.html">Photo credits</a>.</p></div><dialog id="font-story" aria-label="For font nerds"><p>Dig the font? I do, and it has a very cool story behind it. Interested? Listen to it <a href="https://www.hyperfixedpod.com/listen/hyperfixed/little-by-little" target="_blank" rel="noopener noreferrer">here</a>. I'm not affiliated with that podcast I just really like it.</p><form method="dialog"><button type="submit">Close</button></form></dialog></footer>
+</body></html>
