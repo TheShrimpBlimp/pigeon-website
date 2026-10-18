@@ -1,15 +1,26 @@
-# Blog mirror
+# Captain’s Log
 
-`/blog/` renders the latest public submissions from u/theshrimpblimp via
-`/api/blog`, using Reddit's Atom feed. It refreshes on page load and every
-15 minutes while visible. No Reddit comments are imported. The feed is a recent
-post mirror, not a complete historical archive; Reddit controls its length.
+The public log lives at `/blog/`; its writing desk is `/admin/`.
+Posts are stored in D1. There is no Reddit dependency or automatic sync.
+The admin supports creating, editing, dating and deleting entries; text is
+rendered literally with paragraph breaks and clickable HTTP(S) links.
 
-The domain Worker caches successful responses for up to seven days and refreshes
-when requested after 15 minutes. If Reddit fails, it serves the cached feed;
-without a cache it returns 503 and the page links to the profile. Reddit may block
-Worker requests; live retrieval must be verified after deployment. Post HTML is
-rendered with an element/URL allowlist and no imported scripts or event handlers.
+## First-time setup
 
-Pages packaging includes the blog automatically. Deploy the domain Worker as
-well as Pages when publishing this feature. No automatic publication is enabled.
+From this site directory:
+
+```
+wrangler d1 execute pigeon-installs --remote --file domain/blog-schema.sql --config domain/wrangler.json
+wrangler secret put BLOG_ADMIN_PASSWORD --config domain/wrangler.json
+```
+
+Enter a strong unique password at the interactive secret prompt. Never put it
+in source control or frontend code. Then deploy Pages and the domain Worker.
+Sign in at `/admin/`. Sessions expire after 24 hours; changing the password
+invalidates existing sessions. A signed HttpOnly/Secure/SameSite cookie protects
+writes; same-origin checks and persistent per-hour login limits are enforced.
+Anonymous users can read published posts only. New and edited posts are public
+as soon as Publish post succeeds; deletion requires confirmation. There are no
+drafts or image uploads in this version. Reddit posts can be pasted into the desk.
+
+Focused checks: `node tests/blog-admin-test.mjs`.

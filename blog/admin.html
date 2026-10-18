@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Captain’s desk — theshrimpblimp</title>
+<meta name="description" content="Welcome aboard theshrimpblimp. Marwan Al Kharrat, computer engineering student at TMU and creator of PIGEON.">
+<link rel="canonical" href="https://theshrimpblimp.com/admin/">
+<link rel="stylesheet" href="/pigeon/site.css">
+<link rel="stylesheet" href="/pigeon/footer.css">
+<link rel="stylesheet" href="/home/home.css">
+<script type="module" src="/pigeon/footer.js"></script>
+<link rel="icon" type="image/png" sizes="192x192" href="https://theshrimpblimp.com/home/face-icon.png">
+<link rel="shortcut icon" href="https://theshrimpblimp.com/favicon.ico">
+<link rel="stylesheet" href="/blog/blog.css"><script type="module" src="/blog/admin.js"></script><meta name="robots" content="noindex,nofollow"></head>
+<body class="personal-home">
+<a class="skip-link" href="#main">Skip to content</a>
+<header>
+<a class="wordmark" href="/" aria-label="theshrimpblimp home">theshrimpblimp<span>MARWAN AL KHARRAT</span></a>
+<nav aria-label="Main navigation"><a href="/">Home</a><a href="/blog/" aria-current="page">Captain’s Log</a><a href="/pigeon/">PIGEON ↗</a></nav>
+</header>
+<main id="main" class="blog-main"><h1>Captain’s desk</h1>
+<p id="admin-status" role="status"></p>
+<form id="login"><label>Password<input type="password" id="password" autocomplete="current-password" required></label><button>Sign in</button></form>
+<div id="desk" hidden><button id="new-post">New post</button> <button id="logout">Sign out</button><div id="post-list"></div>
+<form id="editor"><input type="hidden" id="post-id"><label>Title<input id="post-title" maxlength="200" required></label><label>Date<input id="post-date" type="datetime-local" required></label><label>Post text<textarea id="post-body" rows="18" maxlength="200000" required></textarea></label><p>Text is displayed as written, with line breaks. Links become clickable.</p><button>Publish post</button> <button id="delete-post" type="button" hidden>Delete post</button></form></div>
+</main>
+<footer class="pigeon-footer home-footer">
+<div class="footer-actions"><a class="footer-action" href="https://github.com/TheShrimpBlimp" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a class="footer-action" href="https://buymeacoffee.com/theshrimpb1" target="_blank" rel="noopener noreferrer">Buy me a coffee ↗</a><button class="footer-action footer-font" id="font-nerds" type="button">for font nerds</button></div>
+<div class="footer-info"><p class="footer-title">Marwan Al Kharrat · theshrimpblimp</p><p>Font by Disastrid: <a href="https://github.com/disastrid/LittleCharacter">Little Character</a>.</p></div>
+<dialog id="font-story" aria-label="For font nerds"><p>Dig the font? I do, and it has a very cool story behind it. Interested? Listen to it <a href="https://www.hyperfixedpod.com/listen/hyperfixed/little-by-little" target="_blank" rel="noopener noreferrer">here</a>. I'm not affiliated with that podcast I just really like it.</p><form method="dialog"><button type="submit">Close</button></form></dialog>
+</footer>
+</body>
+</html>
