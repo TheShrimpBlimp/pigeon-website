@@ -233,7 +233,7 @@ export function project(bytes) {
   )
     throw Error("Pattern editing requires a valid current-format FUNA project");
   const np = b[66];
-  if (np < 104 || np > 111) throw Error("Unsupported project parameter count");
+  if (np < 104 || np > 115) throw Error("Unsupported project parameter count");
   const stride = np + 578,
     chain = 68 + stride * 4,
     motion = chain + 84;
@@ -290,7 +290,7 @@ export function readStep(p, track, index) {
             : b[o + 8] & 127,
     pitch: stepPitch(p, track, index),
     condition:
-      (b[o + 8] & 127) >= 102 && (b[o + 8] & 127) <= 105
+      (b[o + 8] & 127) >= 102 && (b[o + 8] & 127) <= 116
         ? (b[o + 8] & 127) - 101
         : 0,
     nudge:
@@ -313,7 +313,7 @@ export function editStep(bytes, track, index, change) {
     if (!Number.isInteger(n) || n < 0 || n > 32) throw Error("Invalid chop");
     b[o] = (b[o] & 128) | (n ? 59 + n : 0);
     if (n) {
-      b[o + 4] = (b[o + 4] & 96) | 1;
+      b[o + 4] = (b[o + 4] & 96) | Math.max(1,s.n);
       if (!s.velocity) b[o + 5] = (b[o + 5] & 128) | 100;
     } else {
       b.fill(0, o, o + 9);
@@ -345,7 +345,8 @@ export function editStep(bytes, track, index, change) {
   }
   if (change.pitch !== undefined) setPitch(p, track, index, change.pitch);
   if (change.condition !== undefined) {
-    if (change.condition < 0 || change.condition > 4)
+    if (change.condition > 4 && p.np < 115) throw Error("Expanded conditions require a v0.4 project");
+    if (change.condition < 0 || change.condition > 15)
       throw Error("Invalid condition");
     if (change.condition)
       b[o + 8] = (b[o + 8] & 128) | (101 + change.condition);
