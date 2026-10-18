@@ -15,7 +15,7 @@ Character font, palette, header and footer. Each question is a separate form ste
 - A successful submission downloads a signed CSV. The final screen asks the
   visitor to DM it themselves and offers a fresh survey.
 
-No answer database, cookies, visitor counts or analytics are added. Answers live
+Only an aggregate completed-submission total is stored for the “Bits Fedback” counter. No answers, IP addresses, visitor identifiers or cookies are stored. Answers live
 in tab memory until the visitor submits. The server receives them to sign the
 CSV and returns it with `no-store`; this code never saves or logs them. Provider
 infrastructure logs are configured separately. This is a comedy captcha, not
@@ -68,3 +68,5 @@ key, and saves screenshots and disposable CSVs under ignored `build/`. No full
 firmware or website test suite is required for these checks.
 
 Photo provenance, authors and reuse licenses are in `credits.html`.
+
+Initialize the aggregate counter with `wrangler d1 execute pigeon-installs --remote --file domain/bitfeedback-schema.sql --config domain/wrangler.json`. It starts at zero; earlier submissions were not tracked and cannot be reconstructed. The total increments only after a valid CSV has been signed, not on page views or failed Fartcha attempts. Retries after a network interruption can count again; this counts completions, not unique people.

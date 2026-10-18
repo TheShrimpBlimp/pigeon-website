@@ -1,9 +1,17 @@
+import {renderNixie,counterDigits,counterNote} from '/pigeon/nixie.js?v=random-base-1';
 import {questions,nextFriday,advanceDate,dateQuestion,ratingOutcome} from './flow.js';
 const form=document.querySelector('#survey'),box=document.querySelector('#question'),next=document.querySelector('#next'),back=document.querySelector('#back'),status=document.querySelector('#status');
 const headings=['WHO GOES THERE?','THE BIT','THE FEELINGS','THE GOOD','THE BAD','THE NOTES','THE VERDICT'];
 let answers={},step=0,rating=null,initialRating=null,fizzled=false,removed=new Set(),attempts=[],choice=null,date=nextFriday(),dateAnswers=[],selected=new Set(),tiles=[],downloadURL=null,submitting=false;
 const el=(tag,text,attrs={})=>{const node=document.createElement(tag);if(text!==null)node.textContent=text;for(const [k,v]of Object.entries(attrs))node.setAttribute(k,v);return node;};
 function heading(text){box.append(el('h1',text,{id:'question-title',tabindex:'-1'}));}
+function showCount(total){
+ if(!Number.isSafeInteger(total)||total<0)return;
+ const digits=document.querySelector('#feedback-total');renderNixie(digits,counterDigits(total,undefined,3));digits.setAttribute('aria-label',`${total.toLocaleString()} Bits Fedback`);
+ const note=document.querySelector('#feedback-count-note');note.textContent=counterNote(total);note.hidden=!note.textContent;
+}
+async function loadCount(){try{const r=await fetch('/api/bitfeedback/count',{cache:'no-store'});if(!r.ok)throw Error();showCount((await r.json()).total);}catch{const node=document.querySelector('#feedback-total');if(!node.children.length){node.textContent='—';node.setAttribute('aria-label','Feedback count unavailable');}}}
+loadCount();
 function render(){
  box.replaceChildren();status.textContent='';next.hidden=false;next.disabled=false;next.textContent='Next ↗';back.hidden=!(Number.isInteger(step)&&step>0&&step<=6);form.setAttribute('aria-labelledby','question-title');
  document.querySelector('#step-label').textContent=Number.isInteger(step)?`Q${step} / ${headings[step]||'A FOLLOW-UP'}`:step==='captcha'?'FARTCHA / FINAL CHECK':'A VERY NORMAL FOLLOW-UP';
@@ -45,7 +53,7 @@ async function submit(){
  try{
   const r=await fetch('/api/bitfeedback/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers,initialRating,ratingAttempts:attempts,dateAnswers,selected:[...selected]})});
   if(!r.ok)throw Error(r.status===503?'The CSV signing service isn’t ready yet. Your answers are still here. Please try again later.':'Your CSV couldn’t be prepared. Please try again.');
-  const blob=await r.blob();if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=URL.createObjectURL(blob);const a=el('a','',{href:downloadURL,download:'bit-feedback.csv'});document.body.append(a);a.click();a.remove();step='done';render();
+  const total=r.headers.get('X-Bits-Fedback');if(total!==null)showCount(Number(total));const blob=await r.blob();if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=URL.createObjectURL(blob);const a=el('a','',{href:downloadURL,download:'bit-feedback.csv'});document.body.append(a);a.click();a.remove();step='done';render();
  }catch(e){error(e.message);next.disabled=false;next.textContent='Verify & submit';}finally{submitting=false;}
 }
 form.addEventListener('submit',async e=>{

@@ -1,13 +1,13 @@
 const {chromium}=await import(process.env.PIGEON_PLAYWRIGHT_MODULE||'playwright');
 import {createServer} from 'node:http';import {readFile,mkdir,writeFile} from 'node:fs/promises';import path from 'node:path';import assert from 'node:assert/strict';
 import {feedbackSubmission} from '../domain/bitfeedback.js';import {spawnSync} from 'node:child_process';
-const root=path.resolve('.');const vars=await readFile('domain/.dev.vars','utf8');const env={FEEDBACK_SIGNING_KEY:vars.match(/FEEDBACK_SIGNING_KEY="([^"]+)"/)[1]};
+const root=path.resolve('.');const vars=await readFile('domain/.dev.vars','utf8');let total=0;const env={DB:{prepare:sql=>({first:async()=>({total:sql.startsWith('UPDATE')?++total:total})})},FEEDBACK_SIGNING_KEY:vars.match(/FEEDBACK_SIGNING_KEY="([^"]+)"/)[1]};
 const server=createServer(async(req,res)=>{
  try{
   const origin='http://127.0.0.1:'+server.address().port;
-  if(req.url==='/api/bitfeedback/submit'){
+  if(req.url.startsWith('/api/bitfeedback/')){
    const chunks=[];for await(const c of req)chunks.push(c);
-   const response=await feedbackSubmission(new Request(origin+req.url,{method:req.method,headers:req.headers,body:Buffer.concat(chunks)}),env);res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));return;
+   const response=await feedbackSubmission(new Request(origin+req.url,{method:req.method,headers:req.headers,...(req.method==='POST'?{body:Buffer.concat(chunks)}:{})}),env);res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));return;
   }
   const u=new URL(req.url,origin);let rel=u.pathname==='/bitfeedback'?'bitfeedback/index.html':u.pathname.startsWith('/pigeon/')?'dist/client/'+u.pathname.slice(8):u.pathname.slice(1);if(rel.endsWith('/'))rel+='index.html';const file=path.resolve(root,rel);if(!file.startsWith(root+'/')||rel.includes('.dev.vars'))throw Error();
   const data=await readFile(file);const type=file.endsWith('.html')?'text/html':file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.json')?'application/json':file.endsWith('.jpg')?'image/jpeg':'application/octet-stream';res.writeHead(200,{'Content-Type':type});res.end(data);

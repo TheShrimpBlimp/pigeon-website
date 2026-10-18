@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-// No database, visitor tracking, or answer logging. Sign and return the CSV only.
+// Store only an aggregate completion count; never store answers or visitor identities.
 const MAX_BYTES=65536;
 const csvCell=value=>'"'+String(/^[\s]*[=+@\-\t\r]/.test(String(value))?"'"+value:value).replaceAll('"','""')+'"';
 const line=(key,value)=>[key,value].map(csvCell).join(',')+'\r\n';
@@ -14,6 +14,10 @@ async function readLimited(request){
 }
 export async function feedbackSubmission(request,env){
  const url=new URL(request.url);
+ if(url.pathname==='/api/bitfeedback/count'){
+  if(!['GET','HEAD'].includes(request.method))return reply('Method not allowed',405);
+  try{const row=await env.DB.prepare('SELECT total FROM bit_feedback_count WHERE id=1').first();if(!row)throw Error();return new Response(request.method==='HEAD'?null:JSON.stringify({total:row.total}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});}catch{return reply('Counter unavailable',503);}
+ }
  if(url.pathname!=='/api/bitfeedback/submit')return null;
  if(request.method!=='POST')return reply('Method not allowed',405);
  if(request.headers.get('Origin')!==url.origin)return reply('Invalid origin',403);
@@ -53,5 +57,7 @@ export async function feedbackSubmission(request,env){
   const signature=new Uint8Array(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,new TextEncoder().encode(csv)));
   csv+=line('signature','p256:'+btoa(String.fromCharCode(...signature)));
  }catch{return reply('CSV signing unavailable',503);}
- return new Response(csv,{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="bit-feedback.csv"','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+ let total;
+ try{const row=await env.DB.prepare('UPDATE bit_feedback_count SET total=total+1 WHERE id=1 RETURNING total').first();if(!row)throw Error();total=row.total;}catch{return reply('Counter unavailable; please retry',503);}
+ return new Response(csv,{headers:{'X-Bits-Fedback':String(total),'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="bit-feedback.csv"','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 }
