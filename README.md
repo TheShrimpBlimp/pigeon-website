@@ -1,6 +1,6 @@
 # PIGEON download and setup site
 
-Current release: **PIGEON v0.3.1**, with 496 KiB shared sample storage. The main firmware excludes the experimental screen reader. Published assets are under `dist/client/`; the Pages workflow prepares and deploys that directory.
+Current release: **PIGEON v0.4**, with 496 KiB shared sample storage. Screen-reader support is included in the standard firmware. Published assets are under `dist/client/`; the Pages workflow prepares and deploys that directory.
 
 Edit `index.html` and `site.css` here. The current offline sample tool stays in
 `../pigeon/`; firmware packaging lives in `../make_site.py`.
@@ -8,7 +8,7 @@ Edit `index.html` and `site.css` here. The current offline sample tool stays in
 From the project root, build with:
 
 ```sh
-.venv/bin/python web/make_site.py build/pigeon.fwsc 0.3.1 web/site/dist
+.venv/bin/python web/make_site.py build/releases/pigeon-0.4/pigeon-0.4.fwsc 0.4 web/site/dist
 ```
 
 `dist/` contains the complete static site, current firmware, matching source,
