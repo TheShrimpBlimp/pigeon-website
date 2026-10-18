@@ -3,5 +3,17 @@
   "main": "index.js",
   "compatibility_date": "2026-10-12",
   "account_id": "560f926a441d49672e7f38050baf0b62",
-  "routes": [{"pattern":"theshrimpblimp.com", "custom_domain":true}]
+  "routes": [
+    {
+      "pattern": "theshrimpblimp.com",
+      "custom_domain": true
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "pigeon-installs",
+      "database_id": "7382f7a1-3e79-43d2-80b3-fc6c4578653e"
+    }
+  ]
 }
