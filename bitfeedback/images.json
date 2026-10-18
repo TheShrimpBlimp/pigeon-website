@@ -1,0 +1,52 @@
+[
+  {
+    "id": "marwan",
+    "name": "Marwan Al Kharrat",
+    "src": "/home/marwan.jpg"
+  },
+  {
+    "id": "jerry-seinfeld",
+    "name": "Jerry Seinfeld",
+    "src": "/bitfeedback/assets/jerry-seinfeld.jpg"
+  },
+  {
+    "id": "amy-schumer",
+    "name": "Amy Schumer",
+    "src": "/bitfeedback/assets/amy-schumer.jpg"
+  },
+  {
+    "id": "ricky-gervais",
+    "name": "Ricky Gervais",
+    "src": "/bitfeedback/assets/ricky-gervais.jpg"
+  },
+  {
+    "id": "matt-rife",
+    "name": "Matt Rife",
+    "src": "/bitfeedback/assets/matt-rife.jpg"
+  },
+  {
+    "id": "jeff-dunham",
+    "name": "Jeff Dunham",
+    "src": "/bitfeedback/assets/jeff-dunham.jpg"
+  },
+  {
+    "id": "joe-rogan",
+    "name": "Joe Rogan",
+    "src": "/bitfeedback/assets/joe-rogan.jpg"
+  },
+  {
+    "id": "rob-schneider",
+    "name": "Rob Schneider",
+    "src": "/bitfeedback/assets/rob-schneider.jpg"
+  },
+  {
+    "id": "james-corden",
+    "name": "James Corden",
+    "src": "/bitfeedback/assets/james-corden.jpg"
+  },
+  {
+    "id": "bert-kreischer",
+    "name": "Bert Kreischer",
+    "src": "/bitfeedback/assets/bert-kreischer.jpg"
+  }
+]
