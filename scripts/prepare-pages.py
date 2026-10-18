@@ -7,6 +7,7 @@ root = Path(__file__).resolve().parents[1]
 target = root / "build/pages"
 shutil.rmtree(target, ignore_errors=True)
 shutil.copytree(root / "dist/client", target)
+shutil.copytree(root / "blog", target / "blog", dirs_exist_ok=True)
 shutil.copytree(root / "home", target / "home", dirs_exist_ok=True)
 shutil.copytree(root / "bitfeedback", target / "bitfeedback", dirs_exist_ok=True)
 shutil.copy(root / "404.html", target / "404.html")
