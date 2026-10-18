@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {blogAdmin} from '../domain/blog-admin.js';
+let row,attempts=0;
+const env={BLOG_ADMIN_PASSWORD:'test-only-secret',DB:{prepare(sql){return {bind(...args){return {first:async()=>({n:++attempts}),run:async()=>{if(sql.startsWith('INSERT INTO captain_posts'))row={id:args[0],title:args[1],body:args[2],published:args[3]};if(sql.startsWith('DELETE FROM captain_posts'))row=undefined;}};},all:async()=>({results:row?[row]:[]})};}}};
+const req=(path,method='GET',data,cookie)=>new Request('https://example.com/api/log/'+path,{method,headers:{Origin:'https://example.com',...(cookie?{Cookie:cookie}:{}),'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined});
+assert.equal((await blogAdmin(req('session'),env)).status,401);
+assert.equal((await blogAdmin(req('login','POST',{password:'wrong'}),env)).status,401);
+const login=await blogAdmin(req('login','POST',{password:'test-only-secret'}),env);assert.equal(login.status,200);const cookie=login.headers.get('Set-Cookie');assert(cookie.includes('HttpOnly; Secure; SameSite=Strict'));
+assert.equal((await blogAdmin(req('session','GET',null,cookie),env)).status,200);
+assert.equal((await blogAdmin(req('posts','POST',{title:'Test',body:'<script>example</script>',published:'2026-10-18'},cookie),env)).status,200);assert(row);
+assert.equal((await (await blogAdmin(req('posts'),env)).json()).posts.length,1);
+const cross=new Request('https://example.com/api/log/posts',{method:'POST',headers:{Origin:'https://evil.example',Cookie:cookie},body:'{}'});assert.equal((await blogAdmin(cross,env)).status,403);
+assert.equal((await blogAdmin(req('posts','POST',{title:'',body:'x',published:'bad'},cookie),env)).status,400);
+assert.equal((await blogAdmin(req('posts/'+row.id,'DELETE',null,cookie),env)).status,200);assert(!row);
+attempts=20;assert.equal((await blogAdmin(req('login','POST',{password:'test-only-secret'}),env)).status,429);
+console.log('Admin authentication, secure cookie, CSRF, CRUD, validation and login limiting: PASS');
