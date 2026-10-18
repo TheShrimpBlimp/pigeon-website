@@ -1,0 +1,1 @@
+The 404 page uses the exact animated GIF supplied by the site owner: https://i.pinimg.com/originals/a7/f5/dc/a7f5dcc3f09fbf4da43f977348062f18.gif . The file is hosted locally without modification (348×348, 12 frames).
