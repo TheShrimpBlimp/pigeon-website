@@ -115,6 +115,16 @@ h1{font-size:64px;font-weight:400;line-height:1.1;margin:26px 0 18px;color:var(-
   <span><kbd>Shift</kbd>-click holds a button</span>
 </p>
 
+<section aria-labelledby="record-heading">
+<h2 id="record-heading">Record your performance.</h2>
+<p class="fine">Capture the emulator’s stereo output. Stop recording, then preview or download your take. Download each take before starting another.</p>
+<button id="record-start" type="button" disabled>Start recording</button>
+<button id="record-stop" type="button" disabled>Stop recording</button>
+<a id="record-download" hidden>Download recording</a>
+<p id="record-status" role="status">Switch on to record.</p>
+<audio id="record-preview" controls hidden aria-label="Recorded performance" style="max-width:100%"></audio>
+</section>
+
 <section class="sample-loader" aria-labelledby="samples-heading"><p class="eyebrow">YOUR SOUNDS</p><h2 id="samples-heading">Add your samples.</h2>
 <label for="storage-mode">Storage mode</label> <select id="storage-mode" disabled><option value="fm1">FM1 storage · 496 KiB</option><option value="unlimited">Unlimited storage</option></select>
 <p id="storage-help">The published firmware shares 496 KiB between two songs and 16 drum pads. Songs use mono 22.05 kHz MP3 at the selected quality (24–64 kbps); drums use IMA ADPCM. The meter includes waveform, MP3 index and alignment overhead. Lower quality leaves more room for audio.</p>
@@ -669,6 +679,84 @@ for(let slot=0;slot<2;slot++)document.getElementById(`song${slot+1}-quality`).on
 mode.onchange=()=>changeSamples(async()=>({...samples,unlimited:mode.value==='unlimited'}));
 document.getElementById('clear-samples').onclick=async()=>{await changeSamples(async()=>({songs:[null,null],pads:[],unlimited:mode.value==='unlimited',bitrates:qualityDraft.slice(),image:null}));const message=sampleStatus.textContent;restoreEditors();refreshSamples();sampleStatus.textContent=message;};
 
+// Capture only the firmware output, leaving sample-editor previews out of the take.
+const recordStart = document.getElementById('record-start');
+const recordStop = document.getElementById('record-stop');
+const recordStatus = document.getElementById('record-status');
+const recordDownload = document.getElementById('record-download');
+const recordPreview = document.getElementById('record-preview');
+let recordingDestination, recorder, recordingURL, recordingTimer;
+function enableRecording() {
+  if (typeof MediaRecorder === 'undefined') {
+    recordStatus.textContent = 'Audio recording is unavailable in this browser.';
+    return;
+  }
+  recordingDestination = audioContext.createMediaStreamDestination();
+  node.connect(recordingDestination);
+  recordStart.disabled = false;
+  recordStatus.textContent = 'Ready to record.';
+}
+recordStart.onclick = async () => {
+  recordStart.disabled = true;
+  try {
+    await audioContext.resume();
+    const mimeType = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/mp4']
+      .find(type => MediaRecorder.isTypeSupported(type));
+    recorder = new MediaRecorder(recordingDestination.stream, mimeType ? {mimeType} : {});
+    const chunks = [];
+    let failed = false;
+    recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+    recorder.onerror = () => {
+      failed = true;
+      clearInterval(recordingTimer);
+      recordStatus.textContent = 'Recording failed. Please try again.';
+      recordStop.disabled = true;
+      recordStart.disabled = false;
+    };
+    recorder.onstop = () => {
+      clearInterval(recordingTimer);
+      recordStop.disabled = true;
+      recordStart.disabled = false;
+      if (failed) return;
+      if (!chunks.length) { recordStatus.textContent = 'No audio was captured. Try recording again.'; return; }
+      const type = recorder.mimeType || chunks[0].type;
+      const blob = new Blob(chunks, {type});
+      recordingURL = URL.createObjectURL(blob);
+      const extension = type.includes('mp4') ? 'm4a' : type.includes('ogg') ? 'ogg' : 'webm';
+      recordDownload.href = recordingURL;
+      recordDownload.download = `pigeon-recording-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`;
+      recordDownload.hidden = false;
+      recordPreview.src = recordingURL;
+      recordPreview.hidden = false;
+      recordStatus.textContent = 'Recording ready. Preview or download your take.';
+    };
+    recorder.start(1000);
+    recordPreview.pause();
+    recordPreview.removeAttribute('src');
+    recordPreview.load();
+    recordPreview.hidden = recordDownload.hidden = true;
+    if (recordingURL) { URL.revokeObjectURL(recordingURL); recordingURL = null; }
+    recordStop.disabled = false;
+    const started = performance.now();
+    const update = () => {
+      const seconds = Math.floor((performance.now() - started) / 1000);
+      recordStatus.textContent = `Recording · ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    };
+    update();
+    recordingTimer = setInterval(update, 1000);
+  } catch (error) {
+    recordStart.disabled = false;
+    recordStatus.textContent = `Could not record: ${error.message}`;
+  }
+};
+recordStop.onclick = () => {
+  if (recorder?.state !== 'recording') return;
+  recordStop.disabled = true;
+  clearInterval(recordingTimer);
+  recordStatus.textContent = 'Finishing recording…';
+  recorder.stop();
+};
+
 // ------------------------------------------------------------------ switching on
 const status = document.getElementById("status");
 const say = (t) => { status.textContent = t; status.hidden = !t; };
@@ -714,6 +802,7 @@ async function switchOn() {
       node.port.postMessage({ type: "load", wasm, sectors: loadFlash(), master: masterValue, bank:saved?.image, unlimited:saved?.unlimited }, [wasm]);
     });
     await ac.resume();
+    enableRecording();
     document.getElementById("start").hidden = true;
     go.textContent = "On";
     if (ac.sampleRate !== 44100) console.warn(`Felucca: the browser plays at ${ac.sampleRate} Hz, the pitch is off by ${(1200 * Math.log2(ac.sampleRate / 44100)).toFixed(0)} cents.`);
