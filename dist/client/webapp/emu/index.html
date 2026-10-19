@@ -118,10 +118,11 @@ h1{font-size:64px;font-weight:400;line-height:1.1;margin:26px 0 18px;color:var(-
 
 <section aria-labelledby="record-heading">
 <h2 id="record-heading">Record your performance.</h2>
-<p class="fine">Capture the emulator’s stereo output. Stop recording, then preview or download your take. Download each take before starting another.</p>
+<p class="fine">Capture the emulator’s stereo output. Stop recording, then preview or download your take as WAV or MP3 (192 kbps). Download each take before starting another.</p>
 <button id="record-start" type="button" disabled>Start recording</button>
 <button id="record-stop" type="button" disabled>Stop recording</button>
-<a id="record-download" hidden>Download recording</a>
+<a id="record-download" hidden>Download WAV</a>
+<a id="record-download-mp3" hidden>Download MP3</a>
 <p id="record-status" role="status">Switch on to record.</p>
 <audio id="record-preview" controls hidden aria-label="Recorded performance" style="max-width:100%"></audio>
 </section>
@@ -686,76 +687,64 @@ const recordStop = document.getElementById('record-stop');
 const recordStatus = document.getElementById('record-status');
 const recordDownload = document.getElementById('record-download');
 const recordPreview = document.getElementById('record-preview');
-let recordingDestination, recorder, recordingURL, recordingTimer;
-function enableRecording() {
-  if (typeof MediaRecorder === 'undefined') {
-    recordStatus.textContent = 'Audio recording is unavailable in this browser.';
-    return;
-  }
-  recordingDestination = audioContext.createMediaStreamDestination();
-  node.connect(recordingDestination);
-  recordStart.disabled = false;
-  recordStatus.textContent = 'Ready to record.';
+const recordMP3 = document.getElementById('record-download-mp3');
+let capture, recordingTimer, recordingChunks = [], recordingURLs = [], finishCapture;
+async function enableRecording() {
+  try {
+    await audioContext.audioWorklet.addModule('./record-worklet.js');
+    capture = new AudioWorkletNode(audioContext, 'pigeon-capture', {outputChannelCount: [2]});
+    // The capture node emits silence; connecting it keeps its processing active.
+    node.connect(capture); capture.connect(audioContext.destination);
+    capture.port.onmessage = ({data}) => {
+      if (data.stopped) finishCapture?.();
+      else recordingChunks.push(data);
+    };
+    recordStart.disabled = false;
+    recordStatus.textContent = 'Ready to record.';
+  } catch (error) { recordStatus.textContent = `Recording unavailable: ${error.message}`; }
 }
 recordStart.onclick = async () => {
   recordStart.disabled = true;
   try {
     await audioContext.resume();
-    const mimeType = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/mp4']
-      .find(type => MediaRecorder.isTypeSupported(type));
-    recorder = new MediaRecorder(recordingDestination.stream, mimeType ? {mimeType} : {});
-    const chunks = [];
-    let failed = false;
-    recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
-    recorder.onerror = () => {
-      failed = true;
-      clearInterval(recordingTimer);
-      recordStatus.textContent = 'Recording failed. Please try again.';
-      recordStop.disabled = true;
-      recordStart.disabled = false;
-    };
-    recorder.onstop = () => {
-      clearInterval(recordingTimer);
-      recordStop.disabled = true;
-      recordStart.disabled = false;
-      if (failed) return;
-      if (!chunks.length) { recordStatus.textContent = 'No audio was captured. Try recording again.'; return; }
-      const type = recorder.mimeType || chunks[0].type;
-      const blob = new Blob(chunks, {type});
-      recordingURL = URL.createObjectURL(blob);
-      const extension = type.includes('mp4') ? 'm4a' : type.includes('ogg') ? 'ogg' : 'webm';
-      recordDownload.href = recordingURL;
-      recordDownload.download = `pigeon-recording-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`;
-      recordDownload.hidden = false;
-      recordPreview.src = recordingURL;
-      recordPreview.hidden = false;
-      recordStatus.textContent = 'Recording ready. Preview or download your take.';
-    };
-    recorder.start(1000);
-    recordPreview.pause();
-    recordPreview.removeAttribute('src');
-    recordPreview.load();
-    recordPreview.hidden = recordDownload.hidden = true;
-    if (recordingURL) { URL.revokeObjectURL(recordingURL); recordingURL = null; }
-    recordStop.disabled = false;
+    recordingChunks = [];
+    recordPreview.pause(); recordPreview.removeAttribute('src'); recordPreview.load();
+    recordPreview.hidden = recordDownload.hidden = recordMP3.hidden = true;
+    recordingURLs.forEach(url => URL.revokeObjectURL(url)); recordingURLs = [];
+    capture.port.postMessage('start'); recordStop.disabled = false;
     const started = performance.now();
     const update = () => {
       const seconds = Math.floor((performance.now() - started) / 1000);
       recordStatus.textContent = `Recording · ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
     };
-    update();
-    recordingTimer = setInterval(update, 1000);
+    update(); recordingTimer = setInterval(update, 1000);
   } catch (error) {
-    recordStart.disabled = false;
-    recordStatus.textContent = `Could not record: ${error.message}`;
+    recordStart.disabled = false; recordStatus.textContent = `Could not record: ${error.message}`;
   }
 };
-recordStop.onclick = () => {
-  if (recorder?.state !== 'recording') return;
-  recordStop.disabled = true;
-  clearInterval(recordingTimer);
-  recordStatus.textContent = 'Finishing recording…';
-  recorder.stop();
+recordStop.onclick = async () => {
+  recordStop.disabled = true; clearInterval(recordingTimer);
+  recordStatus.textContent = 'Preparing WAV and MP3…';
+  let worker;
+  try {
+    await new Promise(resolve => { finishCapture = resolve; capture.port.postMessage('stop'); });
+    finishCapture = null;
+    worker = new Worker('./record-encode-worker.js');
+    const result = await new Promise((resolve, reject) => {
+      worker.onmessage = ({data}) => data.error ? reject(Error(data.error)) : resolve(data);
+      worker.onerror = () => reject(Error('Audio export failed. Please try again.'));
+      worker.postMessage({chunks: recordingChunks, sampleRate: audioContext.sampleRate},
+        recordingChunks.flatMap(c => [c.left.buffer, c.right.buffer]));
+    });
+    const name = `pigeon-recording-${new Date().toISOString().replace(/[:.]/g, '-')}`;
+    for (const [format, link] of [['wav', recordDownload], ['mp3', recordMP3]]) {
+      const url = URL.createObjectURL(result[format]); recordingURLs.push(url);
+      link.href = url; link.download = `${name}.${format}`; link.hidden = false;
+    }
+    recordPreview.src = recordDownload.href; recordPreview.hidden = false;
+    recordStatus.textContent = 'Recording ready. Preview or download WAV or MP3.';
+  } catch (error) { recordStatus.textContent = `Could not export: ${error.message}`; }
+  finally { worker?.terminate(); recordingChunks = []; recordStart.disabled = false; }
 };
 
 // ------------------------------------------------------------------ switching on
