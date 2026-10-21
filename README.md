@@ -1,6 +1,7 @@
 # PIGEON download and setup site
 
-Current release: **PIGEON v0.4**, with 496 KiB shared sample storage. Screen-reader support is included in the standard firmware. Published assets are under `dist/client/`; the Pages workflow prepares and deploys that directory.
+These source templates target the **PIGEON 0.5 candidate**, with 500 KiB usable
+shared sample storage. THE FINAL BETA publishes the 0.5 candidate after maintainer-reported hardware acceptance. Screen-reader support is included in the standard firmware. Published assets are under `dist/client/`; generated from the current firmware and web sources. The Pages workflow deploys that directory.
 
 Edit `index.html` and `site.css` here. The current offline sample tool stays in
 `../pigeon/`; firmware packaging lives in `../make_site.py`.
@@ -8,14 +9,14 @@ Edit `index.html` and `site.css` here. The current offline sample tool stays in
 From the project root, build with:
 
 ```sh
-.venv/bin/python web/make_site.py build/releases/pigeon-0.4/pigeon-0.4.fwsc 0.4 web/site/dist
+.venv/bin/python web/make_site.py build/pigeon.fwsc 0.5-dev web/site/build/pages
 ```
 
-`dist/` contains the complete static site, current firmware, matching source,
+The generated output contains the complete static site, current firmware, matching source,
 licences, installer, guides, and browser sample tool. Imported user audio is not
 included. The landing page uses local fonts and no external scripts.
 
-Serve `dist/` with a loopback-only static server to preview locally. For USB MIDI,
+Serve `build/pages/` with a loopback-only static server to preview locally. For USB MIDI,
 use desktop Chrome or Edge at localhost or on HTTPS. Firmware upload remains a
 user-initiated action; visiting the site does not write to a device.
 
