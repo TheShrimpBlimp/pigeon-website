@@ -1,4 +1,4 @@
-# PIGEON 0.5-dev candidate validation
+# PIGEON 0.5 final beta validation
 
 THE FINAL BETA, prepared for publication 2026-10-21. The maintainer reports all
 remaining hardware checks passed: recording, persistence, expanded flash tail,
@@ -7,7 +7,19 @@ These are maintainer-reported hardware results; automated evidence is listed bel
 The subsequent SEL label-only rebuild is covered by software checks. Source remains
 on the development branch; this is a beta, not the final 0.5 release.
 
-## Current flash-expansion candidate
+## Signed GitHub build
+
+Publication tag: `v0.5.0-beta.1`. The tagged source changes version and splash
+labels only after the maintainer hardware report. The canonical download is the exact GitHub-built release asset.
+The full product/recovery checks and signed-release guards passed in GitHub run
+[39653247306](https://github.com/TheShrimpBlimp/pigeon/actions/runs/39653247306).
+Independent `gh attestation verify` passed for the trusted shared workflow at v1,
+the release tag and source commit `48f028f2ee7f6a0140dfef9d9426dc3237f2e466`.
+SHA-256: `a6cbb4fbd80baa38eb99400bb4bef5ddd5d4167024a8342189a07bc6b8861bed`
+(611106 bytes), matching release SHA256SUMS. Local builds are not substitutes
+for that artifact. The website serves those exact attested bytes.
+
+## Previous locally flashed candidate
 
 Use `build/pigeon.fwsc` (611106 bytes), not the historical USB candidates
 below. SHA-256: `3e25f9644fddaffcabcd2b6ae32a4d9e35248d95395756a4582254c4b007179d`.
