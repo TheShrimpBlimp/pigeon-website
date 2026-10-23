@@ -15,6 +15,19 @@ export default {
   const submission = await feedbackSubmission(request,env);
   if (submission) return submission;
   const url = new URL(request.url);
+  // Serve discovery files at the domain root, outside the Pages proxy.
+  if (url.pathname === '/robots.txt' || url.pathname === '/sitemap.xml') {
+   if (!['GET','HEAD'].includes(request.method)) return new Response('Method not allowed', {status:405});
+   const robots = url.pathname === '/robots.txt';
+   const body = robots
+    ? 'User-agent: *\nAllow: /\n\nSitemap: https://theshrimpblimp.com/sitemap.xml\n'
+    : '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+      ['/', '/pigeon/', '/blog/'].map(path => `  <url><loc>https://theshrimpblimp.com${path}</loc></url>`).join('\n') + '\n</urlset>\n';
+   return new Response(request.method === 'HEAD' ? null : body, {headers:{
+    'Content-Type': robots ? 'text/plain; charset=utf-8' : 'application/xml; charset=utf-8',
+    'Cache-Control':'public, max-age=3600'
+   }});
+  }
   if (url.pathname === '/favicon.ico') url.pathname = '/home/favicon.ico';
   if (url.pathname === '/pigeon') {
    url.pathname = '/pigeon/';

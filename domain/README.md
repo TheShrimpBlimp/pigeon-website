@@ -19,6 +19,11 @@ wrangler deploy --config domain/wrangler.json
 Cloudflare manages the custom-domain DNS and HTTPS certificate. The counter
 remains its separate Worker and already allows the theshrimpblimp.com origin.
 
+The Worker serves `/robots.txt` and `/sitemap.xml` directly. After deploying,
+submit `https://theshrimpblimp.com/sitemap.xml` in Google Search Console and
+inspect `/` and `/pigeon/` to request indexing. Google controls whether and
+when pages appear in search; the sitemap helps discovery but cannot guarantee it.
+
 ## Bit feedback
 
 `/bitfeedback` and `/bitfeedback/` serve `bitfeedback/index.html`. Supporting
